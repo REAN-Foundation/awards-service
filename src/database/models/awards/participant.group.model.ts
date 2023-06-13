@@ -14,6 +14,7 @@ import {
 } from 'typeorm';
 import { Client } from "../client/client.model";
 import { Participant } from "./participant.model";
+import { GroupActivityTypes } from "../../../domain.types/engine/engine.types";
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,9 @@ export class ParticipantGroup {
     @ManyToMany(() => Participant)
     @JoinTable()
     Participants: Participant[];
+
+    @Column({ type: 'simple-json', nullable: true })
+    ActivityTypes : GroupActivityTypes[];
 
     @CreateDateColumn()
     CreatedAt : Date;

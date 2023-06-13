@@ -6,6 +6,7 @@ import { ParticipantGroupService } from '../../../database/services/awards/parti
 import { ErrorHandler } from '../../../common/handlers/error.handler';
 import { ParticipantGroupCreateModel, ParticipantGroupSearchFilters, ParticipantGroupUpdateModel } from '../../../domain.types/awards/participant.group.domain.types';
 import { uuid } from '../../../domain.types/miscellaneous/system.types';
+import { GroupActivityTypes } from '../../../domain.types/engine/engine.types';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,18 @@ export class ParticipantGroupController extends BaseController {
             await this.authorize('ParticipantGroup.GetById', request, response);
             var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
+            const message = 'Participant group retrieved successfully!';
+            return ResponseHandler.success(request, response, message, 200, record);
+        } catch (error) {
+            ResponseHandler.handleError(request, response, error);
+        }
+    };
+
+    getByReferenceId = async (request: express.Request, response: express.Response) => {
+        try {
+            await this.authorize('ParticipantGroup.GetByReferenceId', request, response);
+            var referenceId: uuid = await this._validator.validateParamAsUUID(request, 'referenceId');
+            const record = await this._service.getByReferenceId(referenceId);
             const message = 'Participant group retrieved successfully!';
             return ResponseHandler.success(request, response, message, 200, record);
         } catch (error) {
@@ -124,5 +137,30 @@ export class ParticipantGroupController extends BaseController {
             ResponseHandler.handleError(request, response, error);
         }
     };
+
+    setGroupActivityTypes = async (request: express.Request, response: express.Response): Promise < void > => {
+        try {
+            await this.authorize('ParticipantGroup.AddGroupActivityTypes', request, response);
+            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var activityTypes: GroupActivityTypes[] = await this._validator.validateGroupActivityTypes(request);
+            const result = await this._service.setGroupActivityTypes(id, activityTypes);
+            const message = 'Activity types set to group successfully!';
+            ResponseHandler.success(request, response, message, 200, result);
+        } catch (error) {
+            ResponseHandler.handleError(request, response, error);
+        }
+    }
+
+    getGroupActivityTypes = async (request: express.Request, response: express.Response): Promise < void > => {
+        try {
+            await this.authorize('ParticipantGroup.RemoveGroupActivityTypes', request, response);
+            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            const records = await this._service.getGroupActivityTypes(id);
+            const message = 'Activity types retrieved successfully!';
+            ResponseHandler.success(request, response, message, 200, records);
+        } catch (error) {
+            ResponseHandler.handleError(request, response, error);
+        }
+    }
 
 }

@@ -4,6 +4,7 @@ import { ErrorHandler } from '../../common/handlers/error.handler';
 import { BaseController } from '../base.controller';
 import { RoleService } from '../../database/services/user/role.service';
 import { 
+    GroupActivityTypesList,
     CompositionOperatorList, 
     ConditionOperandDataTypeList, 
     ContextTypeList, 
@@ -152,7 +153,6 @@ export class TypesController extends BaseController {
         }
     };
 
-    
     getDataActionTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
             await this.authorize('Types.GetDataActionTypes', request, response, false);
@@ -176,12 +176,22 @@ export class TypesController extends BaseController {
         }
     };
 
-    
     getOutputSourceTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
             await this.authorize('Types.GetOutputSourceTypes', request, response, false);
             ResponseHandler.success(request, response, 'Output source types retrieved successfully!', 200, {
                 Types : OutputSourceTypeList,
+            });
+        } catch (error) {
+            ResponseHandler.handleError(request, response, error);
+        }
+    };
+
+    getGroupActivityTypes = async (request: express.Request, response: express.Response): Promise<void> => {
+        try {
+            await this.authorize('Types.GetGroupActivityTypes', request, response, false);
+            ResponseHandler.success(request, response, 'Activity types retrieved successfully!', 200, {
+                Types : GroupActivityTypesList,
             });
         } catch (error) {
             ResponseHandler.handleError(request, response, error);

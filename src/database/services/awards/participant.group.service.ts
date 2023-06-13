@@ -15,7 +15,7 @@ import {
     ParticipantGroupSearchResults,
     ParticipantGroupUpdateModel } from '../../../domain.types/awards/participant.group.domain.types';
 import { Context } from '../../models/engine/context.model';
-import { ContextType } from '../../../domain.types/engine/engine.types';
+import { ContextType, GroupActivityTypes } from '../../../domain.types/engine/engine.types';
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -37,14 +37,14 @@ export class ParticipantGroupService extends BaseService {
         : Promise<ParticipantGroupResponseDto> => {
 
         const client = await this.getClient(createModel.ClientId);
-        const badge = this._groupRepository.create({
+        const group = this._groupRepository.create({
             Client      : client,
             ReferenceId : createModel.ReferenceId,
             Name        : createModel.Name,
             Description : createModel.Description,
             ImageUrl    : createModel.ImageUrl,
         });
-        var record = await this._groupRepository.save(badge);
+        var record = await this._groupRepository.save(group);
 
         //Keep group context for this participant group
         const context = this._contextRepository.create({
@@ -60,12 +60,26 @@ export class ParticipantGroupService extends BaseService {
 
     public getById = async (id: uuid): Promise<ParticipantGroupResponseDto> => {
         try {
-            var badge = await this._groupRepository.findOne({
+            var group = await this._groupRepository.findOne({
                 where : {
                     id : id
                 }
             });
-            return ParticipantGroupMapper.toResponseDto(badge);
+            return ParticipantGroupMapper.toResponseDto(group);
+        } catch (error) {
+            logger.error(error.message);
+            ErrorHandler.throwInternalServerError(error.message, 500);
+        }
+    };
+
+    public getByReferenceId = async (referenceId: string): Promise<ParticipantGroupResponseDto> => {
+        try {
+            var group = await this._groupRepository.findOne({
+                where : {
+                    ReferenceId : referenceId
+                }
+            });
+            return ParticipantGroupMapper.toResponseDto(group);
         } catch (error) {
             logger.error(error.message);
             ErrorHandler.throwInternalServerError(error.message, 500);
@@ -97,12 +111,12 @@ export class ParticipantGroupService extends BaseService {
     public update = async (id: uuid, model: ParticipantGroupUpdateModel)
         : Promise<ParticipantGroupResponseDto> => {
         try {
-            const badge = await this._groupRepository.findOne({
+            const group = await this._groupRepository.findOne({
                 where : {
                     id : id
                 }
             });
-            if (!badge) {
+            if (!group) {
                 ErrorHandler.throwNotFoundError('ParticipantGroup not found!');
             }
             //ParticipantGroup code is not modifiable
@@ -110,18 +124,18 @@ export class ParticipantGroupService extends BaseService {
 
             if (model.ClientId != null) {
                 const client = await this.getClient(model.ClientId);
-                badge.Client = client;
+                group.Client = client;
             }
             if (model.Name != null) {
-                badge.Name = model.Name;
+                group.Name = model.Name;
             }
             if (model.Description != null) {
-                badge.Description = model.Description;
+                group.Description = model.Description;
             }
             if (model.ImageUrl != null) {
-                badge.ImageUrl = model.ImageUrl;
+                group.ImageUrl = model.ImageUrl;
             }
-            var record = await this._groupRepository.save(badge);
+            var record = await this._groupRepository.save(group);
             return ParticipantGroupMapper.toResponseDto(record);
         } catch (error) {
             logger.error(error.message);
@@ -146,14 +160,7 @@ export class ParticipantGroupService extends BaseService {
 
     public addParticipant = async (groupId: uuid, participantId: uuid): Promise<boolean> => {
         try {
-            var group = await this._groupRepository.findOne({
-                where : {
-                    id : groupId
-                }
-            });
-            if (!group) {
-                ErrorHandler.throwNotFoundError('ParticipantGroup not found!');
-            }
+            var group = await this.getParticipantGroup(groupId);
             var participant = await this._participantRepository.findOne({
                 where : {
                     id : participantId
@@ -173,14 +180,7 @@ export class ParticipantGroupService extends BaseService {
 
     public removeParticipant = async (groupId: uuid, participantId: uuid): Promise<boolean> => {
         try {
-            var group = await this._groupRepository.findOne({
-                where : {
-                    id : groupId
-                }
-            });
-            if (!group) {
-                ErrorHandler.throwNotFoundError('ParticipantGroup not found!');
-            }
+            var group = await this.getParticipantGroup(groupId);
             var participant = await this._participantRepository.findOne({
                 where : {
                     id : participantId
@@ -200,15 +200,30 @@ export class ParticipantGroupService extends BaseService {
 
     public getParticipants = async (groupId: uuid): Promise<Participant[]> => {
         try {
-            var group = await this._groupRepository.findOne({
-                where : {
-                    id : groupId
-                }
-            });
-            if (!group) {
-                ErrorHandler.throwNotFoundError('ParticipantGroup not found!');
-            }
+            var group = await this.getParticipantGroup(groupId);
             return group.Participants;
+        } catch (error) {
+            logger.error(error.message);
+            ErrorHandler.throwInternalServerError(error.message, 500);
+        }
+    };
+
+    public setGroupActivityTypes = async (groupId: uuid, activityTypes: GroupActivityTypes[]): Promise<boolean> => {
+        try {
+            var group = await this.getParticipantGroup(groupId);
+            group.ActivityTypes = activityTypes;
+            var result = await this._groupRepository.save(group);
+            return result != null;
+        } catch (error) {
+            logger.error(error.message);
+            ErrorHandler.throwInternalServerError(error.message, 500);
+        }
+    };
+
+    public getGroupActivityTypes = async (groupId: uuid): Promise<GroupActivityTypes[]> => {
+        try {
+            var group = await this.getParticipantGroup(groupId);
+            return group.ActivityTypes;
         } catch (error) {
             logger.error(error.message);
             ErrorHandler.throwInternalServerError(error.message, 500);
@@ -258,6 +273,18 @@ export class ParticipantGroupService extends BaseService {
 
         return search;
     };
+
+    private async getParticipantGroup(groupId: string) {
+        var group = await this._groupRepository.findOne({
+            where: {
+                id: groupId
+            }
+        });
+        if (!group) {
+            ErrorHandler.throwNotFoundError('Participant group not found!');
+        }
+        return group;
+    }
 
     //#endregion
 

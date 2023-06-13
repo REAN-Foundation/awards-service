@@ -312,3 +312,23 @@ export const DataSamplingMethodList: DataSamplingMethod[] = [
     DataSamplingMethod.All,
     DataSamplingMethod.Average,
 ];
+
+export enum GroupActivityTypes {
+    MedicationAdherence     = "Medication Adherence",
+    HealthyNutritionChoices = "Healthy Nutrition Choices",
+    PhysicalActivity        = "Physical Activity",
+    StepCount               = "StepCount",
+    WeightReduction         = "WeightReduction",
+    CaloriesBurned          = "CaloriesBurned",
+    None                    = "None",
+}
+
+export const GroupActivityTypesList: GroupActivityTypes[] = [
+    GroupActivityTypes.MedicationAdherence,
+    GroupActivityTypes.HealthyNutritionChoices,
+    GroupActivityTypes.PhysicalActivity,
+    GroupActivityTypes.StepCount,
+    GroupActivityTypes.WeightReduction,
+    GroupActivityTypes.CaloriesBurned,
+    GroupActivityTypes.None,
+];

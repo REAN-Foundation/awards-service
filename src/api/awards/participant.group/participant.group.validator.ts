@@ -9,6 +9,7 @@ import {
     ErrorHandler
 } from '../../../common/handlers/error.handler';
 import BaseValidator from '../../base.validator';
+import { GroupActivityTypes } from '../../../domain.types/engine/engine.types';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -92,5 +93,33 @@ export class ParticipantGroupValidator extends BaseValidator {
 
         return filters;
     };
+
+    validateGroupActivityTypes = async (request: express.Request): Promise<GroupActivityTypes[]> => {
+        try {
+            const schema = joi.array().items(joi.string().valid(
+                GroupActivityTypes.MedicationAdherence,
+                GroupActivityTypes.HealthyNutritionChoices,
+                GroupActivityTypes.CaloriesBurned,
+                GroupActivityTypes.PhysicalActivity,
+                GroupActivityTypes.StepCount,
+                GroupActivityTypes.WeightReduction
+            ));
+            await schema.validateAsync(request.body);
+
+            var arr = request.body as string[];
+            var result: GroupActivityTypes[] = [];
+            arr.forEach((item) => {
+                result.push(item as GroupActivityTypes);
+            });
+
+            // Remove duplicates
+            var s = new Set(result);
+            result = [...s];
+
+            return result;
+        } catch (error) {
+            ErrorHandler.handleValidationError(error);
+        }
+    }
 
 }

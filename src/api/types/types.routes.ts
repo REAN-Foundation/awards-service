@@ -23,6 +23,7 @@ export const register = (app: express.Application): void => {
     router.get('/data-action-types', controller.getDataActionTypes);
     router.get('/input-source-types', controller.getInputSourceTypes);
     router.get('/output-source-types', controller.getOutputSourceTypes);
+    router.get('/group-activity-types', controller.getGroupActivityTypes);
 
     app.use('/api/v1/types', router);
 };
