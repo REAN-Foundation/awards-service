@@ -1,33 +1,33 @@
 import { Client } from '../../models/client/client.model';
-import { BadgeCategory } from '../../models/awards/badge.category.model';
+import { RewardPointsCategory } from '../../models/awards/reward.points.category.model';
 import { logger } from '../../../logger/logger';
 import { ErrorHandler } from '../../../common/handlers/error.handler';
 import { Source } from '../../../database/database.connector';
 import { FindManyOptions, Like, Repository } from 'typeorm';
-import { BadgeCategoryMapper } from '../../mappers/awards/badge.category.mapper';
+import { RewardPointsCategoryMapper } from '../../mappers/awards/reward.points.category.mapper';
 import { BaseService } from '../base.service';
 import { uuid } from '../../../domain.types/miscellaneous/system.types';
 import {
-    BadgeCategoryCreateModel,
-    BadgeCategoryResponseDto,
-    BadgeCategorySearchFilters,
-    BadgeCategorySearchResults,
-    BadgeCategoryUpdateModel } from '../../../domain.types/awards/badge.category.domain.types';
+    RewardPointsCategoryCreateModel,
+    RewardPointsCategoryResponseDto,
+    RewardPointsCategorySearchFilters,
+    RewardPointsCategorySearchResults,
+    RewardPointsCategoryUpdateModel } from '../../../domain.types/awards/reward.points.category.domain.types';
 
 ///////////////////////////////////////////////////////////////////////
 
-export class BadgeCategoryService extends BaseService {
+export class RewardPointsCategoryService extends BaseService {
 
     //#region Repositories
 
     _clientRepository: Repository<Client> = Source.getRepository(Client);
 
-    _categoryRepository: Repository<BadgeCategory> = Source.getRepository(BadgeCategory);
+    _categoryRepository: Repository<RewardPointsCategory> = Source.getRepository(RewardPointsCategory);
 
     //#endregion
 
-    public create = async (createModel: BadgeCategoryCreateModel)
-        : Promise<BadgeCategoryResponseDto> => {
+    public create = async (createModel: RewardPointsCategoryCreateModel)
+        : Promise<RewardPointsCategoryResponseDto> => {
 
         const client = await this.getClient(createModel.ClientId);
         const category = this._categoryRepository.create({
@@ -37,10 +37,10 @@ export class BadgeCategoryService extends BaseService {
             ImageUrl    : createModel.ImageUrl,
         });
         var record = await this._categoryRepository.save(category);
-        return BadgeCategoryMapper.toResponseDto(record);
+        return RewardPointsCategoryMapper.toResponseDto(record);
     };
 
-    public getById = async (id: uuid): Promise<BadgeCategoryResponseDto> => {
+    public getById = async (id: uuid): Promise<RewardPointsCategoryResponseDto> => {
         try {
             var category = await this._categoryRepository.findOne({
                 where : {
@@ -50,15 +50,15 @@ export class BadgeCategoryService extends BaseService {
                     Client : true
                 }
             });
-            return BadgeCategoryMapper.toResponseDto(category);
+            return RewardPointsCategoryMapper.toResponseDto(category);
         } catch (error) {
             logger.error(error.message);
             ErrorHandler.throwInternalServerError(error.message, 500);
         }
     };
 
-    public search = async (filters: BadgeCategorySearchFilters)
-        : Promise<BadgeCategorySearchResults> => {
+    public search = async (filters: RewardPointsCategorySearchFilters)
+        : Promise<RewardPointsCategorySearchResults> => {
         try {
             var search = this.getSearchModel(filters);
             var { search, pageIndex, limit, order, orderByColumn } = this.addSortingAndPagination(search, filters);
@@ -70,7 +70,7 @@ export class BadgeCategoryService extends BaseService {
                 ItemsPerPage   : limit,
                 Order          : order === 'DESC' ? 'descending' : 'ascending',
                 OrderedBy      : orderByColumn,
-                Items          : list.map(x => BadgeCategoryMapper.toResponseDto(x)),
+                Items          : list.map(x => RewardPointsCategoryMapper.toResponseDto(x)),
             };
             return searchResults;
         } catch (error) {
@@ -79,8 +79,8 @@ export class BadgeCategoryService extends BaseService {
         }
     };
 
-    public update = async (id: uuid, model: BadgeCategoryUpdateModel)
-        : Promise<BadgeCategoryResponseDto> => {
+    public update = async (id: uuid, model: RewardPointsCategoryUpdateModel)
+        : Promise<RewardPointsCategoryResponseDto> => {
         try {
             const category = await this._categoryRepository.findOne({
                 where : {
@@ -88,9 +88,9 @@ export class BadgeCategoryService extends BaseService {
                 }
             });
             if (!category) {
-                ErrorHandler.throwNotFoundError('Badge category not found!');
+                ErrorHandler.throwNotFoundError('RewardPoints category not found!');
             }
-            //Badge code is not modifiable
+            //RewardPoints code is not modifiable
             //Use renew key to update ApiKey, ValidFrom and ValidTill
 
             if (model.ClientId != null) {
@@ -107,7 +107,7 @@ export class BadgeCategoryService extends BaseService {
                 category.ImageUrl = model.ImageUrl;
             }
             var record = await this._categoryRepository.save(category);
-            return BadgeCategoryMapper.toResponseDto(record);
+            return RewardPointsCategoryMapper.toResponseDto(record);
         } catch (error) {
             logger.error(error.message);
             ErrorHandler.throwInternalServerError(error.message, 500);
@@ -131,9 +131,9 @@ export class BadgeCategoryService extends BaseService {
 
     //#region Privates
 
-    private getSearchModel = (filters: BadgeCategorySearchFilters) => {
+    private getSearchModel = (filters: RewardPointsCategorySearchFilters) => {
 
-        var search : FindManyOptions<BadgeCategory> = {
+        var search : FindManyOptions<RewardPointsCategory> = {
             relations : {
             },
             where : {

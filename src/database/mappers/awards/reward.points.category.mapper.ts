@@ -1,17 +1,17 @@
-import { BadgeCategory } from '../../models/awards/badge.category.model';
+import { RewardPointsCategory } from '../../models/awards/reward.points.category.model';
 import {
-    BadgeCategoryResponseDto
-} from '../../../domain.types/awards/badge.category.domain.types';
+    RewardPointsCategoryResponseDto
+} from '../../../domain.types/awards/reward.points.category.domain.types';
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-export class BadgeCategoryMapper {
+export class RewardPointsCategoryMapper {
 
-    static toResponseDto = (category: BadgeCategory): BadgeCategoryResponseDto => {
+    static toResponseDto = (category: RewardPointsCategory): RewardPointsCategoryResponseDto => {
         if (category == null) {
             return null;
         }
-        const dto: BadgeCategoryResponseDto = {
+        const dto: RewardPointsCategoryResponseDto = {
             id     : category.id,
             Client : category.Client ? {
                 id   : category.Client.id,

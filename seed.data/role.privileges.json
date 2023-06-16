@@ -97,16 +97,29 @@
             "SchemaInstance.Update",
             "SchemaInstance.Delete",
 
-            "Redemption.Create",
-            "Redemption.Search",
-            "Redemption.GetById",
-            "Redemption.Update",
-            "Redemption.Delete",
-
             "Types.GetEventActionTypes",
             "Types.GetRoles",
 
-            "Badge.GetStockBadgeImages"
+            "Badge.GetStockBadgeImages",
+
+            "RewardPointsCategory.Create",
+            "RewardPointsCategory.Search",
+            "RewardPointsCategory.GetById",
+            "RewardPointsCategory.Update",
+            "RewardPointsCategory.Delete",
+
+            "RewardPoints.Create",
+            "RewardPoints.Search",
+            "RewardPoints.GetById",
+            "RewardPoints.Update",
+            "RewardPoints.Delete",
+
+            "RewardPointsRedemption.Create",
+            "RewardPointsRedemption.Search",
+            "RewardPointsRedemption.GetById",
+            "RewardPointsRedemption.Update",
+            "RewardPointsRedemption.Delete"
+
         ]
     }
 ]
