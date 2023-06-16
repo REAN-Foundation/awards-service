@@ -149,7 +149,7 @@ export class ParticipantGroupController extends BaseController {
         } catch (error) {
             ResponseHandler.handleError(request, response, error);
         }
-    }
+    };
 
     getGroupActivityTypes = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
@@ -161,6 +161,6 @@ export class ParticipantGroupController extends BaseController {
         } catch (error) {
             ResponseHandler.handleError(request, response, error);
         }
-    }
+    };
 
 }

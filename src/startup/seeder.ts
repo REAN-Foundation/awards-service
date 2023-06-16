@@ -39,7 +39,6 @@ export class Seeder {
 
     }
 
-
     public seed = async (): Promise<void> => {
         try {
             await this.createTempFolders();
@@ -232,7 +231,7 @@ export class Seeder {
 
             var badgeStockImage = await this._badgeStockImageService.create(domainModel);
             if (!badgeStockImage) {
-                console.log('Error occurred while seeding badge stock images!');
+                logger.error('Error occurred while seeding badge stock images!');
             }
         }
     };
