@@ -7,7 +7,9 @@ import path from "path";
 import fs from 'fs';
 import { Client } from './models/client/client.model';
 import { User } from './models/user/user.model';
-import { AwardPointRedemption } from "./models/awards/award.points.redemption.model";
+import { RewardPointsRedemption } from "./models/awards/reward.points.redemption.model";
+import { RewardPoints } from "./models/awards/reward.points.model";
+import { RewardPointsCategory } from "./models/awards/reward.points.category.model";
 import { BadgeCategory } from "./models/awards/badge.category.model";
 import { Badge } from "./models/awards/badge.model";
 import { DisbursedAwardPoint } from "./models/awards/disbursed.award.point.model";
@@ -66,7 +68,9 @@ class DatabaseConnector {
         //entities    : [this._basePath + '/**/**{.model.ts}'],
         entities    : [
             Client,
-            AwardPointRedemption,
+            RewardPointsRedemption,
+            RewardPoints,
+            RewardPointsCategory,
             Badge,
             BadgeCategory,
             DisbursedAwardPoint,

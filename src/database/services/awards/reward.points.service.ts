@@ -1,27 +1,24 @@
-import { Badge } from '../../models/awards/badge.model';
 import { Client } from '../../models/client/client.model';
 import { BadgeCategory } from '../../models/awards/badge.category.model';
 import { logger } from '../../../logger/logger';
 import { ErrorHandler } from '../../../common/handlers/error.handler';
-import { Source } from '../../../database/database.connector';
+import { Source } from '../../database.connector';
 import { FindManyOptions, Like, Repository } from 'typeorm';
-import { BadgeMapper } from '../../mappers/awards/badge.mapper';
+import { BadgeCategoryMapper } from '../../mappers/awards/badge.category.mapper';
 import { BaseService } from '../base.service';
 import { uuid } from '../../../domain.types/miscellaneous/system.types';
 import {
-    BadgeCreateModel,
-    BadgeResponseDto,
-    BadgeSearchFilters,
-    BadgeSearchResults,
-    BadgeUpdateModel } from '../../../domain.types/awards/badge.domain.types';
+    BadgeCategoryCreateModel,
+    BadgeCategoryResponseDto,
+    BadgeCategorySearchFilters,
+    BadgeCategorySearchResults,
+    BadgeCategoryUpdateModel } from '../../../domain.types/awards/badge.category.domain.types';
 
 ///////////////////////////////////////////////////////////////////////
 
-export class BadgeService extends BaseService {
+export class RewardPointsService extends BaseService {
 
     //#region Repositories
-
-    _badgeRepository: Repository<Badge> = Source.getRepository(Badge);
 
     _clientRepository: Repository<Client> = Source.getRepository(Client);
 
@@ -29,66 +26,43 @@ export class BadgeService extends BaseService {
 
     //#endregion
 
-    public create = async (createModel: BadgeCreateModel)
-        : Promise<BadgeResponseDto> => {
+    public create = async (createModel: BadgeCategoryCreateModel)
+        : Promise<BadgeCategoryResponseDto> => {
 
         const client = await this.getClient(createModel.ClientId);
-        const category = await this.getBadgeCategory(createModel.CategoryId);
-        const badge = this._badgeRepository.create({
+        const badge = this._categoryRepository.create({
             Client      : client,
-            Category    : category,
             Name        : createModel.Name,
             Description : createModel.Description,
             ImageUrl    : createModel.ImageUrl,
         });
-        var record = await this._badgeRepository.save(badge);
-        return BadgeMapper.toResponseDto(record);
+        var record = await this._categoryRepository.save(badge);
+        return BadgeCategoryMapper.toResponseDto(record);
     };
 
-    public getById = async (id: uuid): Promise<BadgeResponseDto> => {
+    public getById = async (id: uuid): Promise<BadgeCategoryResponseDto> => {
         try {
-            var badge = await this._badgeRepository.findOne({
+            var badge = await this._categoryRepository.findOne({
                 where : {
                     id : id
                 },
                 relations : {
-                    Category : true,
-                    Client   : true
+                    Client : true
                 }
             });
-            return BadgeMapper.toResponseDto(badge);
+            return BadgeCategoryMapper.toResponseDto(badge);
         } catch (error) {
             logger.error(error.message);
             ErrorHandler.throwInternalServerError(error.message, 500);
         }
     };
 
-    public getByClientId = async (clientId: uuid): Promise<BadgeResponseDto[]> => {
-        try {
-            var badges = await this._badgeRepository.find({
-                where : {
-                    Client : {
-                        id : clientId
-                    }
-                },
-                relations : {
-                    Category : true,
-                    Client   : true
-                }
-            });
-            return badges.map(x => BadgeMapper.toResponseDto(x));
-        } catch (error) {
-            logger.error(error.message);
-            ErrorHandler.throwInternalServerError(error.message, 500);
-        }
-    };
-
-    public search = async (filters: BadgeSearchFilters)
-        : Promise<BadgeSearchResults> => {
+    public search = async (filters: BadgeCategorySearchFilters)
+        : Promise<BadgeCategorySearchResults> => {
         try {
             var search = this.getSearchModel(filters);
             var { search, pageIndex, limit, order, orderByColumn } = this.addSortingAndPagination(search, filters);
-            const [list, count] = await this._badgeRepository.findAndCount(search);
+            const [list, count] = await this._categoryRepository.findAndCount(search);
             const searchResults = {
                 TotalCount     : count,
                 RetrievedCount : list.length,
@@ -96,7 +70,7 @@ export class BadgeService extends BaseService {
                 ItemsPerPage   : limit,
                 Order          : order === 'DESC' ? 'descending' : 'ascending',
                 OrderedBy      : orderByColumn,
-                Items          : list.map(x => BadgeMapper.toResponseDto(x)),
+                Items          : list.map(x => BadgeCategoryMapper.toResponseDto(x)),
             };
             return searchResults;
         } catch (error) {
@@ -105,16 +79,16 @@ export class BadgeService extends BaseService {
         }
     };
 
-    public update = async (id: uuid, model: BadgeUpdateModel)
-        : Promise<BadgeResponseDto> => {
+    public update = async (id: uuid, model: BadgeCategoryUpdateModel)
+        : Promise<BadgeCategoryResponseDto> => {
         try {
-            const badge = await this._badgeRepository.findOne({
+            const badge = await this._categoryRepository.findOne({
                 where : {
                     id : id
                 }
             });
             if (!badge) {
-                ErrorHandler.throwNotFoundError('Badge not found!');
+                ErrorHandler.throwNotFoundError('Badge category not found!');
             }
             //Badge code is not modifiable
             //Use renew key to update ApiKey, ValidFrom and ValidTill
@@ -122,10 +96,6 @@ export class BadgeService extends BaseService {
             if (model.ClientId != null) {
                 const client = await this.getClient(model.ClientId);
                 badge.Client = client;
-            }
-            if (model.CategoryId != null) {
-                const category = await this.getBadgeCategory(model.CategoryId);
-                badge.Category = category;
             }
             if (model.Name != null) {
                 badge.Name = model.Name;
@@ -136,8 +106,8 @@ export class BadgeService extends BaseService {
             if (model.ImageUrl != null) {
                 badge.ImageUrl = model.ImageUrl;
             }
-            var record = await this._badgeRepository.save(badge);
-            return BadgeMapper.toResponseDto(record);
+            var record = await this._categoryRepository.save(badge);
+            return BadgeCategoryMapper.toResponseDto(record);
         } catch (error) {
             logger.error(error.message);
             ErrorHandler.throwInternalServerError(error.message, 500);
@@ -146,12 +116,12 @@ export class BadgeService extends BaseService {
 
     public delete = async (id: string): Promise<boolean> => {
         try {
-            var record = await this._badgeRepository.findOne({
+            var record = await this._categoryRepository.findOne({
                 where : {
                     id : id
                 }
             });
-            var result = await this._badgeRepository.remove(record);
+            var result = await this._categoryRepository.remove(record);
             return result != null;
         } catch (error) {
             logger.error(error.message);
@@ -161,20 +131,15 @@ export class BadgeService extends BaseService {
 
     //#region Privates
 
-    private getSearchModel = (filters: BadgeSearchFilters) => {
+    private getSearchModel = (filters: BadgeCategorySearchFilters) => {
 
-        var search : FindManyOptions<Badge> = {
+        var search : FindManyOptions<BadgeCategory> = {
             relations : {
             },
             where : {
             },
             select : {
-                id       : true,
-                Category : {
-                    id          : true,
-                    Name        : true,
-                    Description : true,
-                },
+                id     : true,
                 Client : {
                     id   : true,
                     Name : true,
@@ -187,10 +152,6 @@ export class BadgeService extends BaseService {
                 UpdatedAt   : true,
             }
         };
-
-        if (filters.CategoryId) {
-            search.where['Category'].id = filters.CategoryId;
-        }
         if (filters.ClientId) {
             search.where['Client'].id = filters.ClientId;
         }
@@ -202,18 +163,6 @@ export class BadgeService extends BaseService {
     };
 
     //#endregion
-
-    private async getBadgeCategory(categoryId: uuid) {
-        const category = await this._categoryRepository.findOne({
-            where : {
-                id : categoryId
-            }
-        });
-        if (!category) {
-            ErrorHandler.throwNotFoundError('Badge category cannot be found');
-        }
-        return category;
-    }
 
     private async getClient(clientId: uuid) {
         const client = await this._clientRepository.findOne({

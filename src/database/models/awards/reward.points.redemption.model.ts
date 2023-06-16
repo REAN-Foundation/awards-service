@@ -13,8 +13,8 @@ import { Context } from "../engine/context.model";
 
 ////////////////////////////////////////////////////////////////////////
 
-@Entity({ name: 'award_points_redemptions' })
-export class AwardPointRedemption {
+@Entity({ name: 'reward_points_redemptions' })
+export class RewardPointsRedemption {
 
     @PrimaryGeneratedColumn('uuid')
     id : string;
@@ -23,11 +23,14 @@ export class AwardPointRedemption {
     @JoinColumn()
     Context : Context;
 
+    @Column({ type: 'varchar', length: 256, nullable: true })
+    ModeOfRedemption : string;
+
     @Column({ type: 'integer', nullable: false, default: 0 })
-    RedeemedPoints : number;
+    RedeemedPointsCount : number;
 
     @Column({ type: 'varchar', length: 512, nullable: false })
-    Purpose : string;
+    RedemptionPurpose : string;
 
     @Column({ type: 'varchar', length: 256, nullable: false })
     Message : string;

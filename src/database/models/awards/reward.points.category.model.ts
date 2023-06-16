@@ -11,12 +11,11 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import { Client } from "../client/client.model";
-import { BadgeCategory } from "./badge.category.model";
 
 ////////////////////////////////////////////////////////////////////////
 
-@Entity({ name: 'badges' })
-export class Badge {
+@Entity({ name: 'reward_points_categories' })
+export class RewardPointsCategory {
 
     @PrimaryGeneratedColumn('uuid')
     id : string;
@@ -34,10 +33,6 @@ export class Badge {
     @Column({ type: 'varchar', length: 1024, nullable: true })
     @IsUrl()
     ImageUrl : string;
-
-    @ManyToOne(() => BadgeCategory)
-    @JoinColumn()
-    Category: BadgeCategory;
 
     @CreateDateColumn()
     CreatedAt : Date;

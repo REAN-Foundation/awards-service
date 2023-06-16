@@ -332,3 +332,15 @@ export const GroupActivityTypesList: GroupActivityTypes[] = [
     GroupActivityTypes.CaloriesBurned,
     GroupActivityTypes.None,
 ];
+
+export enum RewardPointsStatus {
+    Active   = "Active",
+    Redeemed = "Redeemed",
+    Expired  = "Expired",
+}
+
+export const RewardPointsStatusList: RewardPointsStatus[] = [
+    RewardPointsStatus.Active,
+    RewardPointsStatus.Redeemed,
+    RewardPointsStatus.Expired,
+];

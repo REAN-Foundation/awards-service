@@ -3,19 +3,20 @@ import { ResponseHandler } from '../../common/handlers/response.handler';
 import { ErrorHandler } from '../../common/handlers/error.handler';
 import { BaseController } from '../base.controller';
 import { RoleService } from '../../database/services/user/role.service';
-import { 
+import {
     GroupActivityTypesList,
-    CompositionOperatorList, 
-    ConditionOperandDataTypeList, 
-    ContextTypeList, 
-    DataActionTypeList, 
-    EventActionTypeList, 
-    ExecutionStatusList, 
-    InputSourceTypeList, 
-    LogicalOperatorList, 
-    MathematicalOperatorList, 
-    OperatorList, 
-    OutputSourceTypeList } from '../../domain.types/engine/engine.types';
+    CompositionOperatorList,
+    ConditionOperandDataTypeList,
+    ContextTypeList,
+    DataActionTypeList,
+    EventActionTypeList,
+    ExecutionStatusList,
+    InputSourceTypeList,
+    LogicalOperatorList,
+    MathematicalOperatorList,
+    OperatorList,
+    OutputSourceTypeList,
+    RewardPointsStatusList } from '../../domain.types/engine/engine.types';
 import { IncomingEventTypeService } from '../../database/services/engine/incoming.event.type.service';
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -164,7 +165,6 @@ export class TypesController extends BaseController {
         }
     };
 
-    
     getInputSourceTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
             await this.authorize('Types.GetInputSourceTypes', request, response, false);
@@ -198,6 +198,17 @@ export class TypesController extends BaseController {
         }
     };
 
+    getRewardPointsStatusTypes = async (request: express.Request, response: express.Response): Promise<void> => {
+        try {
+            await this.authorize('Types.GetRewardPointsStatusTypes', request, response, false);
+            ResponseHandler.success(request, response, 'Reward points status types retrieved successfully!', 200, {
+                Types : RewardPointsStatusList,
+            });
+        } catch (error) {
+            ResponseHandler.handleError(request, response, error);
+        }
+    };
+    
     //#endregion
 
 }

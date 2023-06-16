@@ -24,6 +24,7 @@ export const register = (app: express.Application): void => {
     router.get('/input-source-types', controller.getInputSourceTypes);
     router.get('/output-source-types', controller.getOutputSourceTypes);
     router.get('/group-activity-types', controller.getGroupActivityTypes);
+    router.get('/reward-points-status-types', controller.getRewardPointsStatusTypes);
 
     app.use('/api/v1/types', router);
 };

@@ -7,11 +7,11 @@ import { FindManyOptions, Like, Repository } from 'typeorm';
 import { BadgeCategoryMapper } from '../../mappers/awards/badge.category.mapper';
 import { BaseService } from '../base.service';
 import { uuid } from '../../../domain.types/miscellaneous/system.types';
-import { 
-    BadgeCategoryCreateModel, 
-    BadgeCategoryResponseDto, 
-    BadgeCategorySearchFilters, 
-    BadgeCategorySearchResults, 
+import {
+    BadgeCategoryCreateModel,
+    BadgeCategoryResponseDto,
+    BadgeCategorySearchFilters,
+    BadgeCategorySearchResults,
     BadgeCategoryUpdateModel } from '../../../domain.types/awards/badge.category.domain.types';
 
 ///////////////////////////////////////////////////////////////////////
@@ -31,10 +31,10 @@ export class BadgeCategoryService extends BaseService {
 
         const client = await this.getClient(createModel.ClientId);
         const badge = this._categoryRepository.create({
-            Client     : client,
-            Name       : createModel.Name,
-            Description: createModel.Description,
-            ImageUrl   : createModel.ImageUrl,
+            Client      : client,
+            Name        : createModel.Name,
+            Description : createModel.Description,
+            ImageUrl    : createModel.ImageUrl,
         });
         var record = await this._categoryRepository.save(badge);
         return BadgeCategoryMapper.toResponseDto(record);
@@ -46,8 +46,8 @@ export class BadgeCategoryService extends BaseService {
                 where : {
                     id : id
                 },
-                relations: {
-                    Client: true
+                relations : {
+                    Client : true
                 }
             });
             return BadgeCategoryMapper.toResponseDto(badge);
@@ -139,17 +139,17 @@ export class BadgeCategoryService extends BaseService {
             where : {
             },
             select : {
-                id      : true,
-                Client       : {
-                    id  : true,
-                    Name: true,
-                    Code: true,
+                id     : true,
+                Client : {
+                    id   : true,
+                    Name : true,
+                    Code : true,
                 },
-                Name       : true,
-                Description: true,
-                ImageUrl   : true,
-                CreatedAt  : true,
-                UpdatedAt  : true,
+                Name        : true,
+                Description : true,
+                ImageUrl    : true,
+                CreatedAt   : true,
+                UpdatedAt   : true,
             }
         };
         if (filters.ClientId) {
@@ -166,8 +166,8 @@ export class BadgeCategoryService extends BaseService {
 
     private async getClient(clientId: uuid) {
         const client = await this._clientRepository.findOne({
-            where: {
-                id: clientId
+            where : {
+                id : clientId
             }
         });
         if (!client) {
