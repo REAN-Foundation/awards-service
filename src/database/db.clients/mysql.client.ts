@@ -47,14 +47,14 @@ export class MysqlClient {
                     //logger.log('Connected!');
                     connection.query(query, function (err, result) {
                         if (err) {
-                            logger.error(err.message);
+                            logger.warn(err.message);
 
                             var str = (result !== undefined && result !== null) ? result.toString() : null;
                             if (str != null) {
-                                logger.error(str);
+                                logger.warn(str);
                             }
                             else {
-                                logger.error(`Query: ${query}`);
+                                logger.warn(`Query: ${query}`);
                             }
                             reject(err);
                         }

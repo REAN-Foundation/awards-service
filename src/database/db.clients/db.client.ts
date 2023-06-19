@@ -38,7 +38,7 @@ export class DbClient {
             await this._client.executeQuery(query);
             return true;
         } catch (error) {
-            logger.error(error.message);
+            logger.warn(error.message);
         }
         return false;
     };
