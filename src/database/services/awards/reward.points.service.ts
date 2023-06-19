@@ -1,18 +1,25 @@
-import { Client } from '../../models/client/client.model';
-import { BadgeCategory } from '../../models/awards/badge.category.model';
+import { Context } from '../../models/engine/context.model';
+import { RewardPoints } from '../../models/awards/reward.points.model';
+import { RewardPointsCategory } from '../../../database/models/awards/reward.points.category.model';
 import { logger } from '../../../logger/logger';
 import { ErrorHandler } from '../../../common/handlers/error.handler';
 import { Source } from '../../database.connector';
-import { FindManyOptions, Like, Repository } from 'typeorm';
-import { BadgeCategoryMapper } from '../../mappers/awards/badge.category.mapper';
+import { FindManyOptions, Repository } from 'typeorm';
+import { RewardPointsMapper } from '../../mappers/awards/reward.points.mapper';
 import { BaseService } from '../base.service';
 import { uuid } from '../../../domain.types/miscellaneous/system.types';
 import {
-    BadgeCategoryCreateModel,
-    BadgeCategoryResponseDto,
-    BadgeCategorySearchFilters,
-    BadgeCategorySearchResults,
-    BadgeCategoryUpdateModel } from '../../../domain.types/awards/badge.category.domain.types';
+    ParticipantGroupRewardPointsResponseDto,
+    ParticipantRewardPointsResponseDto,
+    RewardPointsCreateModel,
+    RewardPointsResponseDto,
+    RewardPointsSearchFilters,
+    RewardPointsSearchResults,
+    RewardPointsUpdateModel
+} from '../../../domain.types/awards/reward.points.domain.types';
+import { RewardPointsStatus } from '../../../domain.types/engine/engine.types';
+import { Participant } from '../../../database/models/awards/participant.model';
+import { ParticipantGroup } from '../../../database/models/awards/participant.group.model';
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -20,49 +27,67 @@ export class RewardPointsService extends BaseService {
 
     //#region Repositories
 
-    _clientRepository: Repository<Client> = Source.getRepository(Client);
+    _contextRepository: Repository<Context> = Source.getRepository(Context);
 
-    _categoryRepository: Repository<BadgeCategory> = Source.getRepository(BadgeCategory);
+    _rewardPointsRepository: Repository<RewardPoints> = Source.getRepository(RewardPoints);
+
+    _categoryRepository: Repository<RewardPointsCategory> = Source.getRepository(RewardPointsCategory);
+
+    _participantRepository: Repository<Participant> = Source.getRepository(Participant);
+
+    _participantGroupRepository: Repository<ParticipantGroup> = Source.getRepository(ParticipantGroup);
 
     //#endregion
 
-    public create = async (createModel: BadgeCategoryCreateModel)
-        : Promise<BadgeCategoryResponseDto> => {
+    public create = async (createModel: RewardPointsCreateModel)
+        : Promise<RewardPointsResponseDto> => {
 
-        const client = await this.getClient(createModel.ClientId);
-        const badge = this._categoryRepository.create({
-            Client      : client,
-            Name        : createModel.Name,
-            Description : createModel.Description,
-            ImageUrl    : createModel.ImageUrl,
+        const context = await this.getContext(createModel.ContextId);
+        const category = await this.getCategory(createModel.CategoryId);
+
+        const points = this._rewardPointsRepository.create({
+            Context             : context,
+            Category            : category,
+            RewardReason        : createModel.RewardReason,
+            PointsCount         : createModel.PointsCount,
+            IsBonus             : createModel.IsBonus,
+            BonusSchemaCode     : createModel.BonusSchemaCode,
+            BonusReason         : createModel.BonusReason,
+            RedemptionExpiresOn : createModel.RedemptionExpiresOn,
+            Status              : RewardPointsStatus.Active,
+            RewardDate          : createModel.RewardDate ?? new Date(),
         });
-        var record = await this._categoryRepository.save(badge);
-        return BadgeCategoryMapper.toResponseDto(record);
+        var record = await this._rewardPointsRepository.save(points);
+        return RewardPointsMapper.toResponseDto(record);
     };
 
-    public getById = async (id: uuid): Promise<BadgeCategoryResponseDto> => {
+    public getById = async (id: uuid): Promise<RewardPointsResponseDto> => {
         try {
-            var badge = await this._categoryRepository.findOne({
+            var points = await this._rewardPointsRepository.findOne({
                 where : {
                     id : id
                 },
                 relations : {
-                    Client : true
+                    Category : true,
+                    Context  : {
+                        Participant : true,
+                        Group       : true
+                    }
                 }
             });
-            return BadgeCategoryMapper.toResponseDto(badge);
+            return RewardPointsMapper.toResponseDto(points);
         } catch (error) {
             logger.error(error.message);
             ErrorHandler.throwInternalServerError(error.message, 500);
         }
     };
 
-    public search = async (filters: BadgeCategorySearchFilters)
-        : Promise<BadgeCategorySearchResults> => {
+    public search = async (filters: RewardPointsSearchFilters)
+        : Promise<RewardPointsSearchResults> => {
         try {
             var search = this.getSearchModel(filters);
             var { search, pageIndex, limit, order, orderByColumn } = this.addSortingAndPagination(search, filters);
-            const [list, count] = await this._categoryRepository.findAndCount(search);
+            const [list, count] = await this._rewardPointsRepository.findAndCount(search);
             const searchResults = {
                 TotalCount     : count,
                 RetrievedCount : list.length,
@@ -70,7 +95,7 @@ export class RewardPointsService extends BaseService {
                 ItemsPerPage   : limit,
                 Order          : order === 'DESC' ? 'descending' : 'ascending',
                 OrderedBy      : orderByColumn,
-                Items          : list.map(x => BadgeCategoryMapper.toResponseDto(x)),
+                Items          : list.map(x => RewardPointsMapper.toResponseDto(x)),
             };
             return searchResults;
         } catch (error) {
@@ -79,35 +104,46 @@ export class RewardPointsService extends BaseService {
         }
     };
 
-    public update = async (id: uuid, model: BadgeCategoryUpdateModel)
-        : Promise<BadgeCategoryResponseDto> => {
+    public update = async (id: uuid, model: RewardPointsUpdateModel)
+        : Promise<RewardPointsResponseDto> => {
         try {
-            const badge = await this._categoryRepository.findOne({
+            const points = await this._rewardPointsRepository.findOne({
                 where : {
                     id : id
                 }
             });
-            if (!badge) {
+            if (!points) {
                 ErrorHandler.throwNotFoundError('Badge category not found!');
             }
-            //Badge code is not modifiable
-            //Use renew key to update ApiKey, ValidFrom and ValidTill
 
-            if (model.ClientId != null) {
-                const client = await this.getClient(model.ClientId);
-                badge.Client = client;
+            if (model.ContextId != null) {
+                const context = await this.getContext(model.ContextId);
+                points.Context = context;
             }
-            if (model.Name != null) {
-                badge.Name = model.Name;
+            if (model.RewardReason != null) {
+                points.RewardReason = model.RewardReason;
             }
-            if (model.Description != null) {
-                badge.Description = model.Description;
+            if (model.BonusReason != null) {
+                points.BonusReason = model.BonusReason;
             }
-            if (model.ImageUrl != null) {
-                badge.ImageUrl = model.ImageUrl;
+            if (model.PointsCount != null) {
+                points.PointsCount = model.PointsCount;
             }
-            var record = await this._categoryRepository.save(badge);
-            return BadgeCategoryMapper.toResponseDto(record);
+            if (model.IsBonus != null) {
+                points.IsBonus = model.IsBonus;
+            }
+            if (model.BonusSchemaCode != null) {
+                points.BonusSchemaCode = model.BonusSchemaCode;
+            }
+            if (model.RedemptionExpiresOn != null) {
+                points.RedemptionExpiresOn = model.RedemptionExpiresOn;
+            }
+            if (model.Status != null) {
+                points.Status = model.Status;
+            }
+
+            var record = await this._rewardPointsRepository.save(points);
+            return RewardPointsMapper.toResponseDto(record);
         } catch (error) {
             logger.error(error.message);
             ErrorHandler.throwInternalServerError(error.message, 500);
@@ -116,13 +152,124 @@ export class RewardPointsService extends BaseService {
 
     public delete = async (id: string): Promise<boolean> => {
         try {
-            var record = await this._categoryRepository.findOne({
+            var record = await this._rewardPointsRepository.findOne({
                 where : {
                     id : id
                 }
             });
-            var result = await this._categoryRepository.remove(record);
+            var result = await this._rewardPointsRepository.remove(record);
             return result != null;
+        } catch (error) {
+            logger.error(error.message);
+            ErrorHandler.throwInternalServerError(error.message, 500);
+        }
+    };
+
+    getRewardPointsForParticipant = async (participantId: uuid, fromDate: Date, toDate: Date)
+    : Promise<ParticipantRewardPointsResponseDto> => {
+        try {
+            var participant = await this._participantRepository.findOne({
+                where : {
+                    id : participantId
+                }
+            });
+            const context = await this._contextRepository.findOne({
+                where : {
+                    ReferenceId : participant.ReferenceId
+                }
+            });
+            if (!context) {
+                ErrorHandler.throwNotFoundError('context not found!');
+            }
+            if (fromDate == null) {
+                //Pretty old record....:-)
+                fromDate = new Date('2023-01-01');
+            }
+            if (toDate == null) {
+                toDate = new Date();
+            }
+
+            var query = await this._rewardPointsRepository.createQueryBuilder('RewardPoints')
+                .leftJoinAndSelect('RewardPoints.Category', 'Category')
+                .addSelect('SUM(RewardPoints.PointsCount)', 'TotalPoints')
+                .where('RewardPoints.ContextId = :contextId', { contextId: context.id })
+                .andWhere('RewardPoints.Status = :status', { status: 'Active' })
+                .andWhere('RewardPoints.RewardDate >= :fromDate', { fromDate: fromDate })
+                .andWhere('RewardPoints.RewardDate <= :toDate', { toDate: toDate })
+                .groupBy('RewardPoints.CategoryId')
+                .getRawMany();
+
+            const totalCount = query.reduce((sum, current) => sum + current.TotalPoints, 0);
+
+            const participantRewardPoints: ParticipantRewardPointsResponseDto = {
+                ParticipantId      : participantId,
+                FirstName          : participant.FirstName,
+                LastName           : participant.LastName,
+                TotalPointsCount   : totalCount,
+                CategoryWisePoints : query.map(x => {
+                    return {
+                        CategoryId   : x.Category.id,
+                        CategoryName : x.Category.Name,
+                        PointsCount  : x.TotalPoints
+                    };
+                })
+            };
+            return participantRewardPoints;
+
+        } catch (error) {
+            logger.error(error.message);
+            ErrorHandler.throwInternalServerError(error.message, 500);
+        }
+    };
+
+    getRewardPointsForParticipantGroup = async (groupId: uuid, fromDate: Date, toDate: Date)
+    : Promise<ParticipantGroupRewardPointsResponseDto> => {
+        try {
+            var group = await this._participantGroupRepository.findOne({
+                where : {
+                    id : groupId
+                }
+            });
+            var participantReferenceIds = group.Participants.map(x => x.ReferenceId);
+            var contexts = await this._contextRepository.createQueryBuilder('Context')
+                .where('Context.ReferenceId IN (:...participantReferenceIds)', { participantReferenceIds: participantReferenceIds })
+                .getMany();
+            var contextIds = contexts.map(x => x.id);
+
+            if (fromDate == null) {
+                //Pretty old record....:-)
+                fromDate = new Date('2023-01-01');
+            }
+            if (toDate == null) {
+                toDate = new Date();
+            }
+
+            const groupPoints = await this._rewardPointsRepository.createQueryBuilder('RewardPoints')
+                .leftJoinAndSelect('RewardPoints.Category', 'Category')
+                .addSelect('SUM(RewardPoints.PointsCount)', 'TotalPoints')
+                .where('Context.id IN (:...contextIds)', { contextIds: contextIds })
+                .andWhere('RewardPoints.Status = :status', { status: 'Active' })
+                .andWhere('RewardPoints.RewardDate >= :fromDate', { fromDate: fromDate })
+                .andWhere('RewardPoints.RewardDate <= :toDate', { toDate: toDate })
+                .groupBy('RewardPoints.CategoryId')
+                .getRawMany();
+
+            const totalCount = groupPoints.reduce((sum, current) => sum + current.TotalPoints, 0);
+
+            const participantRewardPoints: ParticipantGroupRewardPointsResponseDto = {
+                ParticipantGroupId : groupId,
+                Name               : group.Name,
+                TotalPointsCount   : totalCount,
+                CategoryWisePoints : groupPoints.map(x => {
+                    return {
+                        CategoryId   : x.Category.id,
+                        CategoryName : x.Category.Name,
+                        PointsCount  : x.TotalPoints
+                    };
+                })
+            };
+            return participantRewardPoints;
+
         } catch (error) {
             logger.error(error.message);
             ErrorHandler.throwInternalServerError(error.message, 500);
@@ -131,32 +278,24 @@ export class RewardPointsService extends BaseService {
 
     //#region Privates
 
-    private getSearchModel = (filters: BadgeCategorySearchFilters) => {
+    private getSearchModel = (filters: RewardPointsSearchFilters) => {
 
-        var search : FindManyOptions<BadgeCategory> = {
+        var search : FindManyOptions<RewardPoints> = {
             relations : {
+                Category : true,
+                Context  : {
+                    Participant : true,
+                    Group       : true
+                }
             },
             where : {
             },
-            select : {
-                id     : true,
-                Client : {
-                    id   : true,
-                    Name : true,
-                    Code : true,
-                },
-                Name        : true,
-                Description : true,
-                ImageUrl    : true,
-                CreatedAt   : true,
-                UpdatedAt   : true,
-            }
         };
-        if (filters.ClientId) {
-            search.where['Client'].id = filters.ClientId;
+        if (filters.ContextId) {
+            search.where['Context'].id = filters.ContextId;
         }
-        if (filters.Name) {
-            search.where['Name'] = Like(`%${filters.Name}%`);
+        if (filters.CategoryId) {
+            search.where['Category'].id = filters.CategoryId;
         }
 
         return search;
@@ -164,16 +303,28 @@ export class RewardPointsService extends BaseService {
 
     //#endregion
 
-    private async getClient(clientId: uuid) {
-        const client = await this._clientRepository.findOne({
+    private async getContext(contextId: uuid) {
+        const context = await this._contextRepository.findOne({
             where : {
-                id : clientId
+                id : contextId
             }
         });
-        if (!client) {
-            ErrorHandler.throwNotFoundError('Client cannot be found');
+        if (!context) {
+            ErrorHandler.throwNotFoundError('Context cannot be found');
         }
-        return client;
+        return context;
+    }
+
+    private async getCategory(categoryId: uuid) {
+        const category = await this._categoryRepository.findOne({
+            where : {
+                id : categoryId
+            }
+        });
+        if (!category) {
+            ErrorHandler.throwNotFoundError('Category cannot be found');
+        }
+        return category;
     }
 
 }

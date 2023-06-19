@@ -3,9 +3,7 @@ import {
     ParticipantResponseDto
 } from '../../../domain.types/awards/participant.domain.types';
 import { ClientMapper } from '../client/client.mapper';
-import { ParticipantBadge } from '../../models/awards/participant.badge.model';
 import { Context } from '../../models/engine/context.model';
-import { Client } from '../../models/client/client.model';
 
 ///////////////////////////////////////////////////////////////////////////////////
 

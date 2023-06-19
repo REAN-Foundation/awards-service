@@ -30,11 +30,11 @@ export class Context {
     ReferenceId : string;
 
     @OneToOne(() => Participant, { nullable: true })
-    @JoinColumn()
+    @JoinColumn({ name: 'ParticipantId' })
     Participant: Participant;
 
     @OneToOne(() => ParticipantGroup, { nullable: true })
-    @JoinColumn()
+    @JoinColumn({ name: 'ParticipantGroupId' })
     Group: ParticipantGroup;
 
     @OneToMany(() => SchemaInstance, (schemaInstance) => schemaInstance.Context, {

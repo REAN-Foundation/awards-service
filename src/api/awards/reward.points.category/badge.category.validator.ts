@@ -21,10 +21,10 @@ export class BadgeCategoryValidator extends BaseValidator {
             });
             await schema.validateAsync(request.body);
             return {
-                Name       : request.body.Name,
-                ClientId   : request.body.ClientId,
-                Description: request.body.Description ?? null,
-                ImageUrl   : request.body.ImageUrl
+                Name        : request.body.Name,
+                ClientId    : request.body.ClientId,
+                Description : request.body.Description ?? null,
+                ImageUrl    : request.body.ImageUrl
             };
         } catch (error) {
             ErrorHandler.handleValidationError(error);
@@ -42,10 +42,10 @@ export class BadgeCategoryValidator extends BaseValidator {
             });
             await schema.validateAsync(request.body);
             return {
-                Name       : request.body.Name ?? null,
-                ClientId   : request.body.ClientId ?? null,
-                Description: request.body.Description ?? null,
-                ImageUrl   : request.body.ImageUrl ?? null
+                Name        : request.body.Name ?? null,
+                ClientId    : request.body.ClientId ?? null,
+                Description : request.body.Description ?? null,
+                ImageUrl    : request.body.ImageUrl ?? null
             };
         } catch (error) {
             ErrorHandler.handleValidationError(error);
@@ -56,8 +56,8 @@ export class BadgeCategoryValidator extends BaseValidator {
         : Promise<BadgeCategorySearchFilters|undefined> => {
         try {
             const schema = joi.object({
-                clientId   : joi.string().uuid().optional(),
-                name       : joi.string().max(64).optional(),
+                clientId : joi.string().uuid().optional(),
+                name     : joi.string().max(64).optional(),
             });
             await schema.validateAsync(request.query);
             const filters = this.getSearchFilters(request.query);

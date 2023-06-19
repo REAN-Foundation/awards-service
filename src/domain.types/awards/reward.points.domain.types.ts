@@ -77,3 +77,40 @@ export interface RewardPointsSearchFilters extends BaseSearchFilters {
 export interface RewardPointsSearchResults extends BaseSearchResults {
     Items: RewardPointsResponseDto[];
 }
+
+export interface ParticipantRewardPointsResponseDto {
+    ParticipantId      : uuid;
+    FirstName         ?: string;
+    LastName          ?: string;
+    TotalPointsCount   : number;
+    CategoryWisePoints : {
+        CategoryId  : uuid;
+        CategoryName: string;
+        PointsCount : number;
+    }[];
+}
+
+export interface ParticipantGroupRewardPointsResponseDto {
+    ParticipantGroupId : uuid;
+    Name              ?: string;
+    TotalPointsCount   : number;
+    CategoryWisePoints : {
+        CategoryId  : uuid;
+        CategoryName: string;
+        PointsCount : number;
+    }[];
+}
+
+export interface GroupLeaderBoardResponseDto {
+    ParticipantGroupId : uuid;
+    Name              ?: string;
+    FromDate           : Date;
+    ToDate             : Date;
+    LeaderBoard        : {
+        ParticipantId      : uuid;
+        FirstName         ?: string;
+        LastName          ?: string;
+        TotalPointsCount   : number;
+        Rank               : number;
+    }[];
+}

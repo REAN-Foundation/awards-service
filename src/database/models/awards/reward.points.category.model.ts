@@ -21,7 +21,7 @@ export class RewardPointsCategory {
     id : string;
 
     @ManyToOne(() => Client, { nullable: true })
-    @JoinColumn()
+    @JoinColumn({ name: 'ClientId' })
     Client : Client;
 
     @Column({ type: 'varchar', length: 256, nullable: false })

@@ -36,9 +36,9 @@ export class IncomingEventService extends BaseService {
         const eventType = await this.getIncomingEventType(createModel.TypeId);
 
         const event = this._eventRepository.create({
-            Context   : context,
-            EventType : eventType,
-            Payload   : createModel.Payload,
+            Context     : context,
+            EventType   : eventType,
+            Payload     : createModel.Payload,
             ReferenceId : createModel.ReferenceId,
         });
         var record = await this._eventRepository.save(event);
@@ -153,7 +153,7 @@ export class IncomingEventService extends BaseService {
         }
         var context = await this._contextRepository.findOne({
             where : {
-                ReferenceId : referenceId
+                ReferenceId : referenceId,
             }
         });
         if (!context) {

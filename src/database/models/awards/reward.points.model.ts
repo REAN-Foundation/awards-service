@@ -22,7 +22,7 @@ export class RewardPoints {
     id : string;
 
     @ManyToOne(()=> Context)
-    @JoinColumn()
+    @JoinColumn({ name: 'ContextId' })
     Context : Context;
 
     @ManyToOne(() => RewardPointsCategory)

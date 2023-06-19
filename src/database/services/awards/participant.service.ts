@@ -14,6 +14,8 @@ import { StringUtils } from '../../../common/utilities/string.utils';
 import { Context } from '../../models/engine/context.model';
 import { ContextType } from '../../../domain.types/engine/engine.types';
 import { BadgeStockImage } from '../../../database/models/awards/badge.stock.image.model';
+import { RewardPoints } from '../../../database/models/awards/reward.points.model';
+import { RewardPointsCategory } from '../../../database/models/awards/reward.points.category.model';
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -32,6 +34,10 @@ export class ParticipantService extends BaseService {
     _badgeRepository: Repository<Badge> = Source.getRepository(Badge);
 
     _badgeStockImageRepository: Repository<BadgeStockImage> = Source.getRepository(BadgeStockImage);
+
+    _rewardPointsRepository: Repository<RewardPoints> = Source.getRepository(RewardPoints);
+
+    _rewardPointsCategoryRepository: Repository<RewardPointsCategory> = Source.getRepository(RewardPointsCategory);
 
     //#endregion
 
@@ -376,8 +382,9 @@ export class ParticipantService extends BaseService {
         return search;
     };
 
-
-    public getBadgeImageUrl =async (participantBadges: ParticipantBadgeResponseDto[], classified: any) => {
+    public getBadgeImageUrl = async (
+        participantBadges: ParticipantBadgeResponseDto[],
+        classified: any) => {
 
         var result = null;
         for await (var participantBadge of participantBadges) {
@@ -386,17 +393,16 @@ export class ParticipantService extends BaseService {
                     Code : participantBadge.Badge.Name
                 }
             });
-            participantBadge.Badge.ImageUrl = badgeimage.PublicUrl ? badgeimage.PublicUrl: null;
+            participantBadge.Badge.ImageUrl = badgeimage.PublicUrl ? badgeimage.PublicUrl : null;
             result = {
-                BadgesByCategory: classified,
-                BadgeList: participantBadges,
+                BadgesByCategory : classified,
+                BadgeList        : participantBadges,
             };
 
         }
         return result;
     };
-
-    
+   
     //#endregion
 
 }

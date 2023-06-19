@@ -22,13 +22,13 @@ export class SchemaInstanceMapper {
                     id   : instance.Schema.Client.id,
                     Name : instance.Schema.Client.Name,
                 } : null,
-                EventTypes : eventTypes? eventTypes.map(x => {
+                EventTypes : eventTypes ? eventTypes.map(x => {
                     return {
-                        id: x.id,
-                        Name: x.Name,
-                        Description: x.Description
-                    }
-                }): [],
+                        id          : x.id,
+                        Name        : x.Name,
+                        Description : x.Description
+                    };
+                }) : [],
             },
             Context : {
                 id          : instance.Context.id,
@@ -67,7 +67,7 @@ export class SchemaInstanceMapper {
                     Node : x.Node ? {
                         id   : x.Node.id,
                         Name : x.Node.Name,
-                    }: null
+                    } : null
                 };
             }) : [],
             CreatedAt : instance.CreatedAt,

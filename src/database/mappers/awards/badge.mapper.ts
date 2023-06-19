@@ -12,22 +12,22 @@ export class BadgeMapper {
             return null;
         }
         const dto: BadgeResponseDto = {
-            id      : badge.id,
-            Category: {
-                id         : badge.Category.id,
-                Name       : badge.Category.Name,
-                Description: badge.Category.Description,
+            id       : badge.id,
+            Category : {
+                id          : badge.Category.id,
+                Name        : badge.Category.Name,
+                Description : badge.Category.Description,
             },
-            Client: {
-                id  : badge.Client.id,
-                Name: badge.Client.Name,
-                Code: badge.Client.Code,
+            Client : {
+                id   : badge.Client.id,
+                Name : badge.Client.Name,
+                Code : badge.Client.Code,
             },
-            Name       : badge.Name,
-            Description: badge.Description,
-            ImageUrl   : badge.ImageUrl,
-            CreatedAt  : badge.CreatedAt,
-            UpdatedAt  : badge.UpdatedAt,
+            Name        : badge.Name,
+            Description : badge.Description,
+            ImageUrl    : badge.ImageUrl,
+            CreatedAt   : badge.CreatedAt,
+            UpdatedAt   : badge.UpdatedAt,
         };
         return dto;
     };

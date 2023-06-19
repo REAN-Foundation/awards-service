@@ -14,24 +14,24 @@ export class ParticipantGroupMapper {
         }
         const client = ClientMapper.toResponseDto(group.Client);
         const dto: ParticipantGroupResponseDto = {
-            id          : group.id,
-            ReferenceId : group.ReferenceId,
-            Client      : client,
-            Name        : group.Name,
-            Description : group.Description,
-            ImageUrl    : group.ImageUrl,
-            Participants: group.Participants.map(x => { return {
-                id         : x.id,
-                FirstName  : x.FirstName,
-                LastName   : x.LastName,
-                CountryCode: x.CountryCode,
-                Phone      : x.Phone,
-                Email      : x.Email,
-                ImageUrl   : x.ProfileImageUrl
+            id           : group.id,
+            ReferenceId  : group.ReferenceId,
+            Client       : client,
+            Name         : group.Name,
+            Description  : group.Description,
+            ImageUrl     : group.ImageUrl,
+            Participants : group.Participants.map(x => { return {
+                id          : x.id,
+                FirstName   : x.FirstName,
+                LastName    : x.LastName,
+                CountryCode : x.CountryCode,
+                Phone       : x.Phone,
+                Email       : x.Email,
+                ImageUrl    : x.ProfileImageUrl
             };
-        }),
-            CreatedAt: group.CreatedAt,
-            UpdatedAt: group.UpdatedAt,
+            }),
+            CreatedAt : group.CreatedAt,
+            UpdatedAt : group.UpdatedAt,
         };
         return dto;
     };
