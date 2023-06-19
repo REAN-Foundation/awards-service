@@ -15,7 +15,7 @@ import { register as registerIncomingEventTypeRoutes } from '../api/engine/incom
 import { register as registerSchemaInstanceRoutes } from '../api/engine/schema.instance/schema.instance.routes';
 import { register as registerTypesRoutes } from '../api/types/types.routes';
 import { register as registerFileResourceRoutes } from '../api/general/file.resource/file.resource.routes';
-
+import { register as registerRewardPointsCategoryRoutes } from '../api/awards/reward.points.category/reward.points.category.routes';
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +53,7 @@ export class Router {
                 registerSchemaInstanceRoutes(this._app);
                 registerTypesRoutes(this._app);
                 registerFileResourceRoutes(this._app);
+                registerRewardPointsCategoryRoutes(this._app);
 
                 resolve(true);
 

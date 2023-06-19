@@ -179,6 +179,7 @@ export enum DataActionType {
     MaximumInRange      = "Maximum-In-Range",
     MinimumInRange      = "Minimum-In-Range",
     CalculatePercentile = "Calculate-Percentile",
+    AllPass             = "All-Pass",
 }
 
 export const DataActionTypeList: DataActionType[] = [
