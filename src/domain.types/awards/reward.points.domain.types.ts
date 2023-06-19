@@ -91,7 +91,7 @@ export interface ParticipantRewardPointsResponseDto {
 }
 
 export interface ParticipantGroupRewardPointsResponseDto {
-    ParticipantGroupId : uuid;
+    GroupId            : uuid;
     Name              ?: string;
     TotalPointsCount   : number;
     CategoryWisePoints : {
@@ -102,15 +102,16 @@ export interface ParticipantGroupRewardPointsResponseDto {
 }
 
 export interface GroupLeaderBoardResponseDto {
-    ParticipantGroupId : uuid;
-    Name              ?: string;
-    FromDate           : Date;
-    ToDate             : Date;
-    LeaderBoard        : {
-        ParticipantId      : uuid;
-        FirstName         ?: string;
-        LastName          ?: string;
-        TotalPointsCount   : number;
-        Rank               : number;
+    GroupId      : uuid;
+    Name        ?: string;
+    FromDate     : Date;
+    ToDate       : Date;
+    CategoryName?: string;
+    LeaderBoard  : {
+        ParticipantId    : uuid;
+        FirstName       ?: string;
+        LastName        ?: string;
+        TotalPointsCount : number;
+        Rank             : number;
     }[];
 }

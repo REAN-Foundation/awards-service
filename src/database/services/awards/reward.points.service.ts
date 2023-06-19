@@ -9,6 +9,7 @@ import { RewardPointsMapper } from '../../mappers/awards/reward.points.mapper';
 import { BaseService } from '../base.service';
 import { uuid } from '../../../domain.types/miscellaneous/system.types';
 import {
+    GroupLeaderBoardResponseDto,
     ParticipantGroupRewardPointsResponseDto,
     ParticipantRewardPointsResponseDto,
     RewardPointsCreateModel,
@@ -257,7 +258,7 @@ export class RewardPointsService extends BaseService {
             const totalCount = groupPoints.reduce((sum, current) => sum + current.TotalPoints, 0);
 
             const participantRewardPoints: ParticipantGroupRewardPointsResponseDto = {
-                ParticipantGroupId : groupId,
+                GroupId            : groupId,
                 Name               : group.Name,
                 TotalPointsCount   : totalCount,
                 CategoryWisePoints : groupPoints.map(x => {
@@ -270,6 +271,114 @@ export class RewardPointsService extends BaseService {
             };
             return participantRewardPoints;
 
+        } catch (error) {
+            logger.error(error.message);
+            ErrorHandler.throwInternalServerError(error.message, 500);
+        }
+    };
+
+    getGroupLeaderBoard = async (
+        groupId: uuid,
+        fromDate: Date,
+        toDate: Date,
+        categoryId: uuid = null //If null, then all categories are taken into account
+    )
+    : Promise<GroupLeaderBoardResponseDto> => {
+        try {
+            var group = await this._participantGroupRepository.findOne({
+                where : {
+                    id : groupId
+                }
+            });
+            var participantReferenceIds = group.Participants.map(x => x.ReferenceId);
+            var contexts = await this._contextRepository.createQueryBuilder('Context')
+                .where('Context.ReferenceId IN (:...participantReferenceIds)', { participantReferenceIds: participantReferenceIds })
+                .getMany();
+            var contextIds = contexts.map(x => x.id);
+
+            if (fromDate == null) {
+                //Pretty old record....:-)
+                fromDate = new Date('2023-01-01');
+            }
+            if (toDate == null) {
+                toDate = new Date();
+            }
+
+            if (categoryId == null) {
+
+                var temp = await this._rewardPointsRepository.createQueryBuilder('RewardPoints')
+                    .leftJoinAndSelect('RewardPoints.Context', 'Context')
+                    .leftJoinAndSelect('Context.Participant', 'Participant')
+                    .addSelect('SUM(RewardPoints.PointsCount)', 'TotalPoints')
+                    .where('Context.id IN (:...contextIds)', { contextIds: contextIds })
+                    .andWhere('RewardPoints.Status = :status', { status: 'Active' })
+                    .andWhere('RewardPoints.RewardDate >= :fromDate', { fromDate: fromDate })
+                    .andWhere('RewardPoints.RewardDate <= :toDate', { toDate: toDate })
+                    .groupBy('Context.ParticipantId')
+                    .orderBy('TotalPoints', 'DESC')
+                    .getRawMany();
+                
+                const leaderboardAcrossCategories: GroupLeaderBoardResponseDto = {
+                    GroupId      : groupId,
+                    Name         : group.Name,
+                    FromDate     : fromDate,
+                    ToDate       : toDate,
+                    CategoryName : 'All',
+                    LeaderBoard  : temp.map((x, i) => {
+                        return {
+                            ParticipantId    : x.Context.Participant.id,
+                            FirstName        : x.Context.Participant.FirstName,
+                            LastName         : x.Context.Participant.LastName,
+                            TotalPointsCount : x.TotalPoints,
+                            Rank             : i + 1
+                        };
+                    })
+                };
+                return leaderboardAcrossCategories;
+            }
+            else {
+                const category = await this._categoryRepository.findOne({
+                    where : {
+                        id : categoryId
+                    }
+                });
+                if (!category) {
+                    ErrorHandler.throwNotFoundError('category not found!');
+                }
+
+                var temp = await this._rewardPointsRepository.createQueryBuilder('RewardPoints')
+                    .leftJoinAndSelect('RewardPoints.Context', 'Context')
+                    .leftJoinAndSelect('Context.Participant', 'Participant')
+                    .leftJoinAndSelect('RewardPoints.Category', 'Category')
+                    .addSelect('SUM(RewardPoints.PointsCount)', 'TotalPoints')
+                    .where('Context.id IN (:...contextIds)', { contextIds: contextIds })
+                    .andWhere('RewardPoints.Status = :status', { status: 'Active' })
+                    .andWhere('RewardPoints.RewardDate >= :fromDate', { fromDate: fromDate })
+                    .andWhere('RewardPoints.RewardDate <= :toDate', { toDate: toDate })
+                    .andWhere('Category.id = :categoryId', { categoryId: categoryId })
+                    .groupBy('Context.ParticipantId')
+                    .addGroupBy('RewardPoints.CategoryId')
+                    .orderBy('TotalPoints', 'DESC')
+                    .getRawMany();
+
+                var leaderboardforCategory: GroupLeaderBoardResponseDto = {
+                    GroupId      : groupId,
+                    Name         : group.Name,
+                    FromDate     : fromDate,
+                    ToDate       : toDate,
+                    CategoryName : category.Name,
+                    LeaderBoard  : temp.map((x, i) => {
+                        return {
+                            ParticipantId    : x.Context.Participant.id,
+                            FirstName        : x.Context.Participant.FirstName,
+                            LastName         : x.Context.Participant.LastName,
+                            TotalPointsCount : x.TotalPoints,
+                            Rank             : i + 1
+                        };
+                    })
+                };
+                return leaderboardforCategory;
+            }
         } catch (error) {
             logger.error(error.message);
             ErrorHandler.throwInternalServerError(error.message, 500);
