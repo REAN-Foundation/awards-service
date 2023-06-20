@@ -4,7 +4,8 @@ import {
     DataStorageInputParams,
     RangeComparisonInputParams,
     OutputParams,
-    ProcessorResult } from '../../domain.types/engine/engine.types';
+    ProcessorResult, 
+    CheckAllPassInputParams} from '../../domain.types/engine/engine.types';
 import { uuid } from '../../domain.types/miscellaneous/system.types';
 import { IDataComparator } from './interfaces/data.comparator.interface';
 import { IDataExtractor } from './interfaces/data.extractor.interface';
@@ -61,6 +62,13 @@ export class ProcessorService {
         inputParams: ContinuityInputParams,
         outputParams: OutputParams): Promise<ProcessorResult> => {
         return await this._processor.calculateContinuity(records, inputParams, outputParams);
+    };
+
+    checkAllPass = async (
+        records: any[],
+        inputParams: CheckAllPassInputParams,
+        outputParams: OutputParams): Promise<ProcessorResult> => {
+        return await this._processor.checkAllPass(records, inputParams, outputParams);
     };
 
 }

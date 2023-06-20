@@ -179,7 +179,7 @@ export enum DataActionType {
     MaximumInRange      = "Maximum-In-Range",
     MinimumInRange      = "Minimum-In-Range",
     CalculatePercentile = "Calculate-Percentile",
-    AllPass             = "All-Pass",
+    CheckAllPass        = "Check-All-Pass",
 }
 
 export const DataActionTypeList: DataActionType[] = [
@@ -188,6 +188,7 @@ export const DataActionTypeList: DataActionType[] = [
     DataActionType.MaximumInRange,
     DataActionType.MinimumInRange,
     DataActionType.CalculatePercentile,
+    DataActionType.CheckAllPass,
 ];
 
 export enum ExecutionStatus {
@@ -242,6 +243,17 @@ export interface ContinuityInputParams extends ActionInputParams {
     SecondaryValue ?: any;
     Operator        : LogicalOperator;
     ContinuityCount : number;
+}
+
+export interface CheckAllPassInputParams extends ActionInputParams {
+    DataActionType ?: DataActionType;
+    KeyDataType    ?: OperandDataType;
+    KeyName        ?: string;
+    ValueDataType  ?: OperandDataType;
+    ValueName      ?: string;
+    Value          ?: any;
+    SecondaryValue ?: any;
+    Operator        : LogicalOperator;
 }
 
 export interface ValueComparisonInputParams extends ActionInputParams {

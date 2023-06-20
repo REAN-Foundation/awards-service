@@ -4,7 +4,7 @@ import {
     CContext,
     CNodeInstance,
     CSchemaInstance } from './execution.types';
-import { ContinuityInputParams, DataActionType, EventActionType, ExecutionStatus, OutputParams, RangeComparisonInputParams } from '../../domain.types/engine/engine.types';
+import { CheckAllPassInputParams, ContinuityInputParams, DataActionType, EventActionType, ExecutionStatus, OutputParams, RangeComparisonInputParams } from '../../domain.types/engine/engine.types';
 import { logger } from '../../logger/logger';
 import { SchemaInstanceResponseDto } from '../../domain.types/engine/schema.instance.types';
 import { ExecutionTypesGenerator } from './execution.types.generator';
@@ -96,6 +96,16 @@ export class SchemaEngine {
                     const data = await processor.calculateContinuity(
                         almanacObject.Data, 
                         action.InputParams as ContinuityInputParams, 
+                        action.OutputParams as OutputParams);
+                    schemaInstance.Almanac.push({
+                        Name: data.Tag,
+                        Data: data.Data
+                    });
+                }
+                else if (dataActionType === DataActionType.CheckAllPass) {
+                    const data = await processor.checkAllPass(
+                        almanacObject.Data,
+                        action.InputParams as CheckAllPassInputParams,
                         action.OutputParams as OutputParams);
                     schemaInstance.Almanac.push({
                         Name: data.Tag,

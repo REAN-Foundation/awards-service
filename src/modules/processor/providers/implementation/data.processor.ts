@@ -1,4 +1,4 @@
-import { ContinuityInputParams, LogicalOperator, OutputParams } from "../../../../domain.types/engine/engine.types";
+import { CheckAllPassInputParams, ContinuityInputParams, LogicalOperator, OutputParams } from "../../../../domain.types/engine/engine.types";
 import { IDataProcessor } from "../../interfaces/data.processor.interface";
 import { TypeUtils } from "../../../../common/utilities/type.utils";
 import { ProcessorResult } from '../../../../domain.types/engine/engine.types';
@@ -141,6 +141,46 @@ export class DataProcessorr implements IDataProcessor {
         });
 
     };
+
+    checkAllPass = async (
+        records: any[],
+        inputParams: CheckAllPassInputParams,
+        outputParams: OutputParams)
+        : Promise<ProcessorResult> => {
+
+        return new Promise((resolve, reject) => {
+            try {
+
+                const bundles = this.getValidRecords(records, predicate, inputParams);
+                const bundles_ = [];
+                for (var b of bundles) {
+                    if (b.length > 0) {
+                        const start = b[0];
+                        const end = b[b.length - 1];
+                        var startStr = (new Date(start.key)).toISOString().split('T')[0];
+                        var endStr = (new Date(end.key)).toISOString().split('T')[0];
+                        var key = `(${startStr})-(${endStr})`;
+                        const obj = {
+                            start  : start.key,
+                            end    : end.key,
+                            bundle : b,
+                            key    : key,
+                        };
+                        bundles_.push(obj);
+                    }
+                }
+                const result: ProcessorResult = {
+                    Success : true,
+                    Tag     : outputParams.OutputTag,
+                    Data    : bundles_
+                };
+                resolve(result);
+
+            } catch (error) {
+                reject(error);
+            }
+        });
+    };
     
     //#region Private methods
 
@@ -225,6 +265,76 @@ export class DataProcessorr implements IDataProcessor {
         return foundBundles;
     };
 
+    getValidRecords = (
+        records: any[],
+        predicate: PredicateType,
+        options: CheckAllPassInputParams,
+        uniqueKeys = true) => {
+            
+            const foundBundles = [];
+            var bundle = [];
+            // const numOccurrences: number = options.ContinuityCount;
+            const valueName = 'value'; // Pl. check this again...
+    
+            //Sort records in ascending order of the key
+            var sortedRecords = records.sort((a, b) => { return a.key - b.key; });
+                
+            if (!uniqueKeys) {
+    
+                for (let i = 0; i < sortedRecords.length; i++) {
+    
+                    const record = sortedRecords[i];
+    
+                    if (predicate(
+                        record,
+                        valueName,
+                        options.Operator,
+                        options.Value,
+                        options.SecondaryValue)) {
+    
+                        bundle.push(record);
+                        foundBundles.push(bundle);
+                        bundle = [];
+
+                    } else {
+                        bundle = [];
+                    }
+                }
+            } else {
+                var bundleKeySet = new Set();
+    
+                for (let i = 0; i < sortedRecords.length; i++) {
+                    
+                    const record = sortedRecords[i];
+                    const recordKey = record.key;
+    
+                    if (predicate(
+                        record,
+                        valueName,
+                        options.Operator,
+                        options.Value,
+                        options.SecondaryValue)) {
+    
+                        if (bundleKeySet.has(recordKey)) {
+                            continue;
+                        }
+    
+                        bundleKeySet.add(recordKey);
+                        bundle.push(record);
+                        foundBundles.push(bundle);
+                        bundle = [];
+                        bundleKeySet = new Set();
+                    } 
+                    else {
+                        bundle = [];
+                        bundleKeySet = new Set();
+                    }
+                }
+            }
+    
+            return foundBundles;
+    
+    };
     //#endregion
 
 }
