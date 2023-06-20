@@ -12,6 +12,10 @@ import { ParticipantBadge } from "../../../../../database/models/awards/particip
 import { DataStorageInputParams, OutputParams, ProcessorResult } from '../../../../../domain.types/engine/engine.types';
 import { Badge } from "../../../../../database/models/awards/badge.model";
 import { Participant } from "../../../../../database/models/awards/participant.model";
+import { RewardPointsCategory } from "../../../../../database/models/awards/reward.points.category.model";
+import { RewardPoints } from "../../../../../database/models/awards/reward.points.model";
+import { TimeUtils } from "../../../../../common/utilities/time.utils";
+import { DurationType } from "../../../../../domain.types/miscellaneous/time.types";
 
 //////////////////////////////////////////////////////////////////////
 
@@ -31,6 +35,10 @@ export class DataStore implements IDataStore {
 
     _contextRepository: Repository<Context> = Source.getRepository(Context);
 
+    _rewardPointsCategoryRepository: Repository<RewardPointsCategory> = Source.getRepository(RewardPointsCategory);
+
+    _rewardPointsRepository: Repository<RewardPoints> = Source.getRepository(RewardPoints);
+
     //#endregion
 
     storeData = async (
@@ -43,6 +51,9 @@ export class DataStore implements IDataStore {
         const recordType = inputParams.RecordType;
         if (recordType === 'Badge') {
             return await this.storeBadgeData(context, records, inputParams, outputParams.OutputTag);   
+        }
+        else if (recordType === 'RewardPoints') {
+            return await this.storeRewardPointsData(context, records, inputParams, outputParams.OutputTag);   
         }
         ErrorHandler.throwNotFoundError(`Data store not found for record type.`);
     };
@@ -57,6 +68,9 @@ export class DataStore implements IDataStore {
         const recordType = inputParams.RecordType;
         if (recordType === 'Badge') {
             return await this.removeBadgeData(context, records, inputParams, outputParams.OutputTag);   
+        }
+        else if (recordType === 'RewardPoints') {
+            return await this.removeRewardPointsData(context, records, inputParams, outputParams.OutputTag);
         }
         ErrorHandler.throwNotFoundError(`Data store not found for record type.`);
     };
@@ -75,7 +89,7 @@ export class DataStore implements IDataStore {
         if (!x) {
             throw new Error(`Badge not found to add badge for the participant!`);
         }
-        const badgeId = x.Value;
+        const badgeId = x.Value as uuid;
         if (!badgeId) {
             throw new Error(`Invalid badge Id!`);
         }
@@ -141,6 +155,108 @@ export class DataStore implements IDataStore {
         return result;
     };
 
+    private storeRewardPointsData = async (
+        context: Context,
+        records: any[],
+        inputParams: DataStorageInputParams,
+        tag: string) => {
+
+        const storageKeys = inputParams.StorageKeys;
+        if (!storageKeys && storageKeys.length === 0) {
+            throw new Error(`Empty storage keys!`);
+        }
+        
+        var x = storageKeys.find(x => x.Key === 'RewardPointsCategory');
+        if (!x) {
+            throw new Error(`Reward points category not found!`);
+        }
+        const categoryName = x.Value as string;
+        if (!categoryName) {
+            throw new Error(`Invalid category!`);
+        }
+        const category = await this._rewardPointsCategoryRepository.findOne({
+            where: {
+                Name : categoryName
+            }
+        });
+
+        x = storageKeys.find(x => x.Key === 'IsBonus');
+        const isBonus = x ? x.Value as boolean : false;
+
+        x = storageKeys.find(x => x.Key === 'Points');
+        if (!x) {
+            throw new Error(`Reward points value not found!`);
+        }
+        const points = x.Value as number;
+
+        x = storageKeys.find(x => x.Key === 'Reason');
+        const reason = x ? x.Value as string : null;
+
+        x = storageKeys.find(x => x.Key === 'BonusSchemaCode');
+        const bonusSchemaCode = x ? x.Value as string : null;
+
+        x = storageKeys.find(x => x.Key === 'RedemptionExpiryInDays');
+        const redemptionExpiry = x ? x.Value as number : 180;
+        const redemptionExpiryDate = TimeUtils.addDuration(new Date(), redemptionExpiry, DurationType.Day);
+
+
+        const addedRewardPoints = [];
+        for await (var r of records) {
+            const start = (new Date(r.start)).toISOString().split('T')[0];
+            const end = (new Date(r.end)).toISOString().split('T')[0];
+            const metadata = {
+                start : start,
+                end : end,
+                key : `(${start})-(${end})`,
+            };
+            const str = JSON.stringify(metadata);
+
+            const record = await this._rewardPointsRepository.create({
+                Context: context,
+                Category: category,
+                RewardReason: reason,
+                PointsCount: points as number,
+                Key: str,
+                IsBonus: isBonus,
+                BonusSchemaCode: bonusSchemaCode,
+                BonusReason: isBonus ? reason : null,
+                RedemptionExpiresOn: redemptionExpiryDate,
+                RewardDate: new Date(end),
+            });
+            const record_ = await this._participantBadgeRepository.save(record);
+            addedRewardPoints.push(record_);
+        }
+        
+        const result: ProcessorResult = {
+            Success: true,
+            Tag    : tag,
+            Data   : addedRewardPoints
+        };
+
+        return result;
+    };
+
+    private removeRewardPointsData = async (
+        context: Context, 
+        records: any[], 
+        inputParams: DataStorageInputParams, 
+        tag: string) => {
+
+        const recordIds = records.map(x => x.id);
+        var deleted: DeleteResult = null;
+        if (recordIds && recordIds.length > 0) {
+            deleted = await this._participantBadgeRepository.delete(recordIds);
+        }
+
+        const result: ProcessorResult = {
+            Success: true,
+            Tag    : tag,
+            Data   : deleted
+        };
+
+        return result;
+    };
+
     public getContextById = async (id: uuid): Promise<Context> => {
         try {
             var context = await this._contextRepository.findOne({
@@ -157,5 +273,22 @@ export class DataStore implements IDataStore {
             logger.error(error.message);
         }
     };
+
+    public getContextByReferenceId = async (referenceId: string): Promise<Context> => {
+        try {
+            var context = await this._contextRepository.findOne({
+                where : {
+                    ReferenceId : referenceId
+                },
+                relations: {
+                    Participant: true,
+                    Group: true,
+                }
+            });
+            return context;
+        } catch (error) {
+            logger.error(error.message);
+        }
+    }
 
 }

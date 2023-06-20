@@ -57,6 +57,7 @@ export class RewardPointsService extends BaseService {
             RedemptionExpiresOn : createModel.RedemptionExpiresOn,
             Status              : RewardPointsStatus.Active,
             RewardDate          : createModel.RewardDate ?? new Date(),
+            Key                 : createModel.Key
         });
         var record = await this._rewardPointsRepository.save(points);
         return RewardPointsMapper.toResponseDto(record);

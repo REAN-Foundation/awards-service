@@ -35,6 +35,7 @@ export class RewardPointsMapper {
                 } : null,
             },
             PointsCount         : record.PointsCount,
+            Key                 : record.Key,
             RewardReason        : record.RewardReason,
             RewardDate          : record.RewardDate,
             IsBonus             : record.IsBonus,

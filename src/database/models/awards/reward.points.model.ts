@@ -29,6 +29,9 @@ export class RewardPoints {
     @JoinColumn({ name: 'CategoryId' })
     Category: RewardPointsCategory;
 
+    @Column({ type: 'varchar', length: 128, nullable: false })
+    Key : string;
+
     @Column({ type: 'varchar', length: 512, nullable: true })
     RewardReason : string;
 

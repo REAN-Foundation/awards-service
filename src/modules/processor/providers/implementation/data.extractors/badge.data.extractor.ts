@@ -1,8 +1,5 @@
 import { Repository } from "typeorm";
-import { FactsSource } from '../../../../fact.extractors/facts.db.connector';
 import { Source } from '../../../../../database/database.connector';
-import { MedicationFact } from '../../../../fact.extractors/models/medication.fact.model';
-import { BadgeFact } from '../../../../fact.extractors/models/bedge.facts.model';
 import { Context } from "../../../../../database/models/engine/context.model";
 import { ParticipantBadge } from "../../../../../database/models/awards/participant.badge.model";
 import { DataExtractionInputParams, OutputParams, ProcessorResult } from '../../../../../domain.types/engine/engine.types';
@@ -13,10 +10,6 @@ import { IExtractor } from "./extractor.interface";
 export class BadgeDataExtractor  implements IExtractor {
 
     //#region Repositories
-
-    _medicationRepository: Repository<MedicationFact> = FactsSource.getRepository(MedicationFact);
-
-    _badgeRepository: Repository<BadgeFact> = FactsSource.getRepository(BadgeFact);
 
     _participantBadgeRepository: Repository<ParticipantBadge> = Source.getRepository(ParticipantBadge);
 

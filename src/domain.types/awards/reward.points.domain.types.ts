@@ -20,6 +20,7 @@ export interface RewardPointsCreateModel {
     RedemptionExpiresOn?: Date;
     Status              : RewardPointsStatus;
     RewardDate         ?: Date;
+    Key                 : string;
 }
 
 export interface RewardPointsUpdateModel {
@@ -36,6 +37,7 @@ export interface RewardPointsUpdateModel {
 
 export interface RewardPointsResponseDto {
     id                  : uuid;
+    Key                 : string;
     PointsCount         : number;
     IsBonus             : boolean;
     BonusSchemaCode    ?: string;

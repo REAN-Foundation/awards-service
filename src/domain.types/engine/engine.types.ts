@@ -263,7 +263,7 @@ export interface RangeComparisonInputParams extends ActionInputParams {
 export interface DataStorageInputParams extends ActionInputParams {
     StorageKeys ?: {
         Key  : string;
-        Value: string;
+        Value: string | number | boolean | Date | any[] | object;
     }[];
 }
 
