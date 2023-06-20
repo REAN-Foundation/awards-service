@@ -223,7 +223,7 @@ export class DataStore implements IDataStore {
                 RedemptionExpiresOn: redemptionExpiryDate,
                 RewardDate: new Date(end),
             });
-            const record_ = await this._participantBadgeRepository.save(record);
+            const record_ = await this._rewardPointsRepository.save(record);
             addedRewardPoints.push(record_);
         }
         
@@ -245,7 +245,7 @@ export class DataStore implements IDataStore {
         const recordIds = records.map(x => x.id);
         var deleted: DeleteResult = null;
         if (recordIds && recordIds.length > 0) {
-            deleted = await this._participantBadgeRepository.delete(recordIds);
+            deleted = await this._rewardPointsRepository.delete(recordIds);
         }
 
         const result: ProcessorResult = {
