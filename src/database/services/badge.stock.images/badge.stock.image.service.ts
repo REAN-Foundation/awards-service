@@ -48,7 +48,7 @@ export class BadgeStockImageService {
             return dtos;
 
         } catch (error) {
-            console.log(error.message);
+            logger.error(error.message);
             throw new ApiError(500, error.message);
         }
     };

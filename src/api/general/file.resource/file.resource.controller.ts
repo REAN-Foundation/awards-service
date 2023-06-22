@@ -16,6 +16,7 @@ import { Authenticator } from '../../../auth/authenticator';
 import path from 'path';
 import { Helper } from '../../../common/helper';
 import { DownloadDisposition } from '../../../domain.types/general/file.resource/file.resource.types';
+import { logger } from '../../../logger/logger';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +30,6 @@ export class FileResourceController extends BaseController {
     _validator: BaseValidator = new BaseValidator();
 
     _authenticator: Authenticator = null;
-
 
     constructor() {
         super();
@@ -73,7 +73,7 @@ export class FileResourceController extends BaseController {
             var record = await this._service.create(model);
             if (record === null) {
                 ErrorHandler.throwInternalServerError('Unable to create file resource!', 400);
-            }            
+            }
 
             const message = 'File resource uploaded successfully!';
             ResponseHandler.success(request, response, message, 201, record);
@@ -81,7 +81,7 @@ export class FileResourceController extends BaseController {
         } catch (error) {
             ResponseHandler.handleError(request, response, error);
         }
-    }
+    };
 
     download = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
@@ -116,7 +116,7 @@ export class FileResourceController extends BaseController {
         } catch (error) {
             ResponseHandler.handleError(request, response, error);
         }
-    }
+    };
 
     getById = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
@@ -131,7 +131,7 @@ export class FileResourceController extends BaseController {
         } catch (error) {
             ResponseHandler.handleError(request, response, error);
         }
-    }
+    };
 
     delete = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
@@ -147,7 +147,7 @@ export class FileResourceController extends BaseController {
             }
             const message = 'File resource deleted successfully!';
             ResponseHandler.success(request, response, message, 200, {
-                Deleted: success
+                Deleted : success
             });
         } catch (error) {
             ResponseHandler.handleError(request, response, error);
@@ -181,7 +181,7 @@ export class FileResourceController extends BaseController {
                 await this._authorizer.authorize(request, response);
             }
 
-            console.log(`Download request for Resource Id:: ${metadata.ResourceId}
+            logger.info(`Download request for Resource Id:: ${metadata.ResourceId}
                 and Version:: ${metadata.Version}`);
             const localDestination = await this._service.DownloadByVersion(
                 metadata.ResourceId,
@@ -213,7 +213,7 @@ export class FileResourceController extends BaseController {
 
         var filestream = fs.createReadStream(localDestination);
         filestream.pipe(response);
-    };
+    }
 
     private setDownloadResponseHeaders(
         response: express.Response,

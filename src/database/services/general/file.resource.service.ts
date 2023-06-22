@@ -261,7 +261,7 @@ export class FileResourceService {
 
         var exists = fs.existsSync(sourceLocation);
         if (!exists) {
-            console.log('Source file location does not exist!');
+            logger.info('Source file location does not exist!');
         }
 
         var existingStorageKey = await this._storageService.exists(storageKey);
@@ -272,8 +272,8 @@ export class FileResourceService {
             storageKey = await this._storageService.uploadLocally(storageKey, sourceLocation);
         }
 
-        if(!storageKey) {
-            console.log('Unable to upload file to storage!');
+        if (!storageKey) {
+            logger.info('Unable to upload file to storage!');
             return null;
         }
         
