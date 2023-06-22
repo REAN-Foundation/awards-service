@@ -156,7 +156,9 @@ export class DataProcessorr implements IDataProcessor {
         const valueName = 'value'; // Pl. check this again...
 
         //Sort records in ascending order of the key
-        var sortedRecords = records.sort((a, b) => { return a.key - b.key; });
+        var sortedRecords = records.sort((a, b) => {
+            return a.key - b.key;
+        });
             
         if (!uniqueKeys) {
 
