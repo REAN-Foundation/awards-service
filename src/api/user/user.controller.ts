@@ -1,6 +1,5 @@
 import express from 'express';
 import { ResponseHandler } from '../../common/handlers/response.handler';
-import { BaseController } from '../base.controller';
 import { UserService } from '../../database/services/user/user.service';
 import { ErrorHandler } from '../../common/handlers/error.handler';
 import { Helper } from '../../common/helper';
@@ -16,10 +15,11 @@ import { Loader } from '../../startup/loader';
 import { CurrentUser } from '../../domain.types/miscellaneous/current.user';
 import { RoleService } from '../../database/services/user/role.service';
 import { StringUtils } from '../../common/utilities/string.utils';
+import { AuthHandler } from '../../auth/auth.handler';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-export class UserController extends BaseController {
+export class UserController {
 
     //#region member variables and constructors
 
@@ -29,15 +29,11 @@ export class UserController extends BaseController {
 
     _validator: UserValidator = new UserValidator();
 
-    constructor() {
-        super();
-    }
 
     //#endregion
 
     create = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
-            await this.authorize('User.Create', request, response, false);
             const userCreateModel = await this._validator.validateCreateRequest(request);
             const record: UserResponseDto = await this._service.create(userCreateModel);
             if (record === null) {
@@ -55,7 +51,6 @@ export class UserController extends BaseController {
 
     getById = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
-            await this.authorize('User.GetById', request, response);
             const id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const record: UserResponseDto = await this._service.getById(id);
             if (record === null) {
@@ -70,7 +65,6 @@ export class UserController extends BaseController {
 
     search = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
-            await this.authorize('User.Search', request, response);
             var filters: UserSearchFilters = await this._validator.validateSearchRequest(request);
             var searchResults: UserSearchResults = await this._service.search(filters);
             const message = 'User records retrieved successfully!';
@@ -82,7 +76,6 @@ export class UserController extends BaseController {
 
     update = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
-            await this.authorize('User.Update', request, response);
             const id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const updateModel: UserUpdateModel = await this._validator.validateUpdateRequest(request);
             const updated: UserResponseDto = await this._service.update(id, updateModel);
@@ -98,7 +91,6 @@ export class UserController extends BaseController {
 
     delete = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('User.Delete', request, response);
             const id = await this._validator.validateParamAsUUID(request, 'id');
             const record: UserResponseDto = await this._service.getById(id);
             if (record == null) {
@@ -117,7 +109,6 @@ export class UserController extends BaseController {
 
     loginWithPassword = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
-            this.authorize('User.LoginWithPassword', request, response, false);
             await this._validator.validateLoginWithPasswordRequest(request);
             const loginModel = await this.getLoginModel(request.body);
             const sentPassword = loginModel.Password;
@@ -129,7 +120,7 @@ export class UserController extends BaseController {
             const user: UserResponseDto = await this._service.getById(loginModel.User.id);
             const loginSession = await this._service.createUserLoginSession(user.id);
             const currentUser: CurrentUser = this.constructCurrentUser(user, loginSession.id);
-            const accessToken = await Loader.Authorizer.generateUserSessionToken(currentUser);
+            const accessToken = await AuthHandler.generateUserSessionToken(currentUser);
             const result = {
                 User        : currentUser,
                 AccessToken : accessToken
@@ -143,7 +134,6 @@ export class UserController extends BaseController {
 
     changePassword = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
-            await this.authorize('User.ResetPassword', request, response);
             await this._validator.validatePasswordChangeRequest(request);
             const passwordResetModel = await this.getPasswordChangeModel(request.body);
             const existingHashedPassword = await this._service.getUserHashedPassword(request.body.CurrentUserId);
@@ -164,7 +154,6 @@ export class UserController extends BaseController {
 
     // loginWithOtp = async (request: express.Request, response: express.Response): Promise <void> => {
     //     try {
-    //         this.authorize('User.LoginWithOtp', request, response, false);
     //         await this._validator.validateLoginWithOtpRequest(requestBody);
     //         const loginModel = await this.getLoginModel(requestBody);
     //         const latestOtp = await this._otpService.getLatestActiveOtp(loginModel.User.id);
@@ -182,7 +171,7 @@ export class UserController extends BaseController {
     //         const user = await this._service.getById(loginModel.User.id);
     //         const loginSession = await this._service.createUserLoginSession(user.id);
     //         const currentUser: CurrentUser = this.constructCurrentUser(user, loginSession.id);
-    //         const accessToken = await Loader.Authorizer.generateUserSessionToken(currentUser);
+    //         const accessToken = await AuthHandler.generateUserSessionToken(currentUser);
     //         currentUser['ImageUrl'] = user.ImageUrl ?? '';
     //         const result = {
     //             User        : currentUser,
@@ -197,7 +186,6 @@ export class UserController extends BaseController {
 
     // sendOtp = async (request: express.Request, response: express.Response): Promise <void> => {
     //     try {
-    //         this.authorize('User.SendOtp', request, response, false);
     //         await this._validator.validateSendOtpRequest(requestBody);
     //         const countryCode = (typeof requestBody.CountryCode !== undefined) ? requestBody.CountryCode : '+91';
     //         const phone = (typeof requestBody.Phone !== undefined) ? requestBody.Phone : null;
@@ -227,7 +215,6 @@ export class UserController extends BaseController {
 
     logout = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
-            this.authorize('User.Logout', request, response);
             const sessionId = request.currentUser.SessionId;
             const result = await this._service.invalidateUserLoginSession(sessionId);
             const message = 'User logged out successfully!';
@@ -239,7 +226,6 @@ export class UserController extends BaseController {
 
     getRoleTypes = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
-            await this.authorize('User.GetRoleTypes', request, response, false);
             const roleTypes = await this._roleService.getAll();
             const message = 'Role types retrieved successfully!';
             ResponseHandler.success(request, response, message, 200, roleTypes);

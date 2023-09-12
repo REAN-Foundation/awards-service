@@ -31,24 +31,24 @@ export class DataComparator implements IDataComparator {
                     data.ToBeRemoved = [];
                 }
                 else {
-                    var toBeAdded = [];
-                    var toBeRemoved = [];
-                    for (const i of incomingRange) {
-                        const found = referenceRange.find(x => x.key === i.key);
-                        if (!found) {
-                            toBeAdded.push(i);
-                        }
-                    }
-                    if (toBeAdded.length > 0) {
-                        for (const r of referenceRange) {
-                            const found = toBeAdded.find(x => x.key === r.key);
-                            if (found) {
-                                toBeRemoved.push(r);
-                            }
-                        }
-                    }
-                    data.ToBeAdded   = toBeAdded;
-                    data.ToBeRemoved = toBeRemoved;
+                    // var toBeAdded = [];
+                    // var toBeRemoved = [];
+                    // for (const i of incomingRange) {
+                    //     const found = referenceRange.find(x => x.key === i.key);
+                    //     if (!found) {
+                    //         toBeAdded.push(i);
+                    //     }
+                    // }
+                    // if (toBeAdded.length > 0) {
+                    //     for (const r of referenceRange) {
+                    //         const found = toBeAdded.find(x => x.key === r.key);
+                    //         if (found) {
+                    //             toBeRemoved.push(r);
+                    //         }
+                    //     }
+                    // }
+                    data.ToBeAdded   = incomingRange;
+                    data.ToBeRemoved = referenceRange;
                 }
                 const result: ProcessorResult = {
                     Success : true,

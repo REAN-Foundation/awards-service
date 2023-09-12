@@ -1,7 +1,6 @@
 import express from 'express';
 import { ResponseHandler } from '../../../common/handlers/response.handler';
 import { BadgeCategoryValidator } from './badge.category.validator';
-import { BaseController } from '../../base.controller';
 import { BadgeCategoryService } from '../../../database/services/awards/badge.category.service';
 import { ErrorHandler } from '../../../common/handlers/error.handler';
 import { BadgeCategoryCreateModel, BadgeCategorySearchFilters, BadgeCategoryUpdateModel } from '../../../domain.types/awards/badge.category.domain.types';
@@ -9,7 +8,7 @@ import { uuid } from '../../../domain.types/miscellaneous/system.types';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-export class BadgeCategoryController extends BaseController {
+export class BadgeCategoryController {
 
     //#region member variables and constructors
 
@@ -17,15 +16,11 @@ export class BadgeCategoryController extends BaseController {
 
     _validator: BadgeCategoryValidator = new BadgeCategoryValidator();
 
-    constructor() {
-        super();
-    }
 
     //#endregion
 
     create = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('BadgeCategory.Create', request, response);
             var model: BadgeCategoryCreateModel = await this._validator.validateCreateRequest(request);
             const record = await this._service.create(model);
             if (record === null) {
@@ -40,7 +35,6 @@ export class BadgeCategoryController extends BaseController {
 
     getById = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('BadgeCategory.GetById', request, response);
             var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             const message = 'Badge category retrieved successfully!';
@@ -52,7 +46,6 @@ export class BadgeCategoryController extends BaseController {
 
     update = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('BadgeCategory.Update', request, response);
             const id = await this._validator.validateParamAsUUID(request, 'id');
             var model: BadgeCategoryUpdateModel = await this._validator.validateUpdateRequest(request);
             const updatedRecord = await this._service.update(id, model);
@@ -65,7 +58,6 @@ export class BadgeCategoryController extends BaseController {
 
     search = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('BadgeCategory.Search', request, response);
             var filters: BadgeCategorySearchFilters = await this._validator.validateSearchRequest(request);
             const searchResults = await this._service.search(filters);
             const message = 'Badge category records retrieved successfully!';
@@ -77,7 +69,6 @@ export class BadgeCategoryController extends BaseController {
 
     delete = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            await this.authorize('BadgeCategory.Delete', request, response);
             var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const result = await this._service.delete(id);
             const message = 'Badge category deleted successfully!';

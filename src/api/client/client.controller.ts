@@ -1,7 +1,6 @@
 import express from 'express';
 import { generate } from 'generate-password';
 import { ResponseHandler } from '../../common/handlers/response.handler';
-import { BaseController } from '../base.controller';
 import { ClientService } from '../../database/services/client/client.service';
 import { ErrorHandler } from '../../common/handlers/error.handler';
 import { TypeUtils } from '../../common/utilities/type.utils';
@@ -16,7 +15,7 @@ import {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-export class ClientController extends BaseController {
+export class ClientController {
 
     //#region member variables and constructors
 
@@ -24,15 +23,11 @@ export class ClientController extends BaseController {
 
     _validator: ClientValidator = new ClientValidator();
 
-    constructor() {
-        super();
-    }
 
     //#endregion
 
     create = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('ApiClient.Create', request, response);
             const createModel: ClientCreateModel = await this._validator.validateCreateRequest(request);
             var clientCode = request.body.Code;
             if (clientCode) {
@@ -58,7 +53,6 @@ export class ClientController extends BaseController {
 
     getById = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('ApiClient.GetById', request, response);
             const id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             if (record === null) {
@@ -87,7 +81,6 @@ export class ClientController extends BaseController {
 
     search = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('ApiClient.Search', request, response);
             var filters: ClientSearchFilters = await this._validator.validateSearchRequest(request);
             var searchResults: ClientSearchResults = await this._service.search(filters);
             const message = 'Api client records retrieved successfully!';
@@ -99,7 +92,6 @@ export class ClientController extends BaseController {
 
     update = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('ApiClient.Update', request, response);
             const id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const updateModel: ClientUpdateModel = await this._validator.validateUpdateRequest(request);
             const record = await this._service.getById(id);
@@ -119,7 +111,6 @@ export class ClientController extends BaseController {
 
     delete = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('ApiClient.Delete', request, response);
             const id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             if (record == null) {
@@ -138,7 +129,6 @@ export class ClientController extends BaseController {
 
     getCurrentApiKey = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('ApiClient.GetApiKey',request, response, false);
             const verificationModel = await this._validator.getOrRenewApiKey(request);
             const apiKeyDto = await this._service.getApiKey(verificationModel);
             if (apiKeyDto == null) {
@@ -154,7 +144,6 @@ export class ClientController extends BaseController {
 
     renewApiKey = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('ApiClient.RenewApiKey',request, response, false);
             const verificationModel = await this._validator.getOrRenewApiKey(request);
             if (verificationModel.ValidFrom == null) {
                 verificationModel.ValidFrom = new Date();

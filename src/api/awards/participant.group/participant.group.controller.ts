@@ -1,7 +1,6 @@
 import express from 'express';
 import { ResponseHandler } from '../../../common/handlers/response.handler';
 import { ParticipantGroupValidator } from './participant.group.validator';
-import { BaseController } from '../../base.controller';
 import { ParticipantGroupService } from '../../../database/services/awards/participant.group.service';
 import { ErrorHandler } from '../../../common/handlers/error.handler';
 import { ParticipantGroupCreateModel, ParticipantGroupSearchFilters, ParticipantGroupUpdateModel } from '../../../domain.types/awards/participant.group.domain.types';
@@ -9,7 +8,7 @@ import { uuid } from '../../../domain.types/miscellaneous/system.types';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-export class ParticipantGroupController extends BaseController {
+export class ParticipantGroupController {
 
     //#region member variables and constructors
 
@@ -17,15 +16,11 @@ export class ParticipantGroupController extends BaseController {
 
     _validator: ParticipantGroupValidator = new ParticipantGroupValidator();
 
-    constructor() {
-        super();
-    }
 
     //#endregion
 
     create = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('ParticipantGroup.Create', request, response);
             var model: ParticipantGroupCreateModel = await this._validator.validateCreateRequest(request);
             const record = await this._service.create(model);
             if (record === null) {
@@ -40,7 +35,6 @@ export class ParticipantGroupController extends BaseController {
 
     getById = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('ParticipantGroup.GetById', request, response);
             var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             const message = 'Participant group retrieved successfully!';
@@ -52,7 +46,6 @@ export class ParticipantGroupController extends BaseController {
 
     update = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('ParticipantGroup.Update', request, response);
             const id = await this._validator.validateParamAsUUID(request, 'id');
             var model: ParticipantGroupUpdateModel = await this._validator.validateUpdateRequest(request);
             const updatedRecord = await this._service.update(id, model);
@@ -65,7 +58,6 @@ export class ParticipantGroupController extends BaseController {
 
     search = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('ParticipantGroup.Search', request, response);
             var filters: ParticipantGroupSearchFilters = await this._validator.validateSearchRequest(request);
             const searchResults = await this._service.search(filters);
             const message = 'Participant group records retrieved successfully!';
@@ -77,7 +69,6 @@ export class ParticipantGroupController extends BaseController {
 
     delete = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            await this.authorize('ParticipantGroup.Delete', request, response);
             var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const result = await this._service.delete(id);
             const message = 'Participant group deleted successfully!';
@@ -89,7 +80,6 @@ export class ParticipantGroupController extends BaseController {
 
     addParticipant = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            await this.authorize('ParticipantGroup.AddParticipant', request, response);
             var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             var participantId: uuid = await this._validator.validateParamAsUUID(request, 'participantId');
             const result = await this._service.addParticipant(id, participantId);
@@ -102,7 +92,6 @@ export class ParticipantGroupController extends BaseController {
 
     removeParticipant = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            await this.authorize('ParticipantGroup.RemoveParticipant', request, response);
             var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             var participantId: uuid = await this._validator.validateParamAsUUID(request, 'participantId');
             const result = await this._service.removeParticipant(id, participantId);
@@ -115,7 +104,6 @@ export class ParticipantGroupController extends BaseController {
 
     getParticipants = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            await this.authorize('ParticipantGroup.GetParticipants', request, response);
             var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const result = await this._service.getParticipants(id);
             const message = 'Participants retrieved successfully!';

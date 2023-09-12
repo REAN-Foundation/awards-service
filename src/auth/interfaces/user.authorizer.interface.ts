@@ -1,9 +1,9 @@
 import express from 'express';
-import { CurrentUser } from '../domain.types/miscellaneous/current.user';
+import { CurrentUser } from '../../domain.types/miscellaneous/current.user';
 
 ////////////////////////////////////////////////////////////////////////
 
-export interface IAuthorizer {
+export interface IUserAuthorizer {
 
     authorize(
         request: express.Request,

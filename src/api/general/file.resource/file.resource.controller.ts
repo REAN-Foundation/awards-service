@@ -2,7 +2,6 @@ import express from 'express';
 import fs from 'fs';
 import { ResponseHandler } from '../../../common/handlers/response.handler';
 import { FileResourceService } from '../../../database/services/general/file.resource.service';
-import { BaseController } from '../../base.controller';
 import { uuid } from '../../../domain.types/miscellaneous/system.types';
 import { ApiError, ErrorHandler } from '../../../common/handlers/error.handler';
 import BaseValidator from '../../base.validator';
@@ -12,14 +11,14 @@ import { FileUtils } from '../../../common/utilities/file.utils';
 import { Loader } from '../../../startup/loader';
 import { StorageService } from '../../../modules/storage/storage.service';
 import { FileResourceMetadata } from '../../../domain.types/general/file.resource/file.resource.types';
-import { Authenticator } from '../../../auth/authenticator';
+import { AuthHandler } from '../../../auth/auth.handler';
 import path from 'path';
 import { Helper } from '../../../common/helper';
 import { DownloadDisposition } from '../../../domain.types/general/file.resource/file.resource.types';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-export class FileResourceController extends BaseController {
+export class FileResourceController {
 
     //#region member variables and constructors
     _service: FileResourceService = null;
@@ -28,22 +27,14 @@ export class FileResourceController extends BaseController {
 
     _validator: BaseValidator = new BaseValidator();
 
-    _authenticator: Authenticator = null;
-
-
     constructor() {
-        super();
         this._service = new FileResourceService();
-        this._authenticator = Loader.Authenticator;
-
     }
 
     //#endregion
 
     upload = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            await this.authorize('FileResource.Upload', request, response);
-
             var dateFolder = new Date().toISOString().split('T')[0];
             var originalFilename: string = request.headers['filename'] as string;
             var contentLength = request.headers['content-length'];
@@ -88,11 +79,12 @@ export class FileResourceController extends BaseController {
             var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             if (!record.Public) {
-                var verified = await Loader.Authenticator.verifyUser(request);
-                if (!verified) {
-                    ErrorHandler.throwUnauthorizedUserError('User is not authorized to download the resource!');
-                }
-                await this.authorize('FileResource.Download', request, response);
+
+                //NOTE: Please note that this is deviation from regular pattern of
+                //authentication middleware pipeline. Here we are authenticating client
+                //and user only when the file resource is not public.
+
+                await AuthHandler.verifyAccess(request);
             }
             var disposition = request.query.disposition as string;
             if (!disposition) {
@@ -120,7 +112,6 @@ export class FileResourceController extends BaseController {
 
     getById = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
-            await this.authorize('FileResource.GetById', request, response);
             var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             if (record === null) {
@@ -135,7 +126,6 @@ export class FileResourceController extends BaseController {
 
     delete = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            await this.authorize('FileResource.Delete', request, response);
             var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             var success = await this._storageService.delete(request.params.id);
             if (!success) {
@@ -165,7 +155,7 @@ export class FileResourceController extends BaseController {
         }
     };
 
-    DownloadByVersion = async (request: express.Request, response: express.Response): Promise<void> => {
+    downloadByVersion = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
             request.context = 'FileResource.DownloadByVersion';
             const metadata = await this._validator.getByVersionName(request);
@@ -177,8 +167,7 @@ export class FileResourceController extends BaseController {
                 //authentication middleware pipeline. Here we are authenticating client
                 //and user only when the file resource is not public.
 
-                await this._authenticator.checkAuthentication(request);
-                await this._authorizer.authorize(request, response);
+                await AuthHandler.verifyAccess(request);
             }
 
             console.log(`Download request for Resource Id:: ${metadata.ResourceId}

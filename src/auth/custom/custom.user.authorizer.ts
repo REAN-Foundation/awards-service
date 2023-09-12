@@ -1,7 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { logger } from '../../logger/logger';
-import { IAuthorizer } from '../authorizer.interface';
+import { IUserAuthorizer } from '../interfaces/user.authorizer.interface';
 import { CurrentUser } from '../../domain.types/miscellaneous/current.user';
 import { ConfigurationManager } from '../../config/configuration.manager';
 import { Loader } from '../../startup/loader';
@@ -9,7 +9,7 @@ import { UserService } from '../../database/services/user/user.service';
 
 //////////////////////////////////////////////////////////////
 
-export class CustomAuthorizer implements IAuthorizer {
+export class CustomUserAuthorizer implements IUserAuthorizer {
 
     _userService: UserService = null;
 

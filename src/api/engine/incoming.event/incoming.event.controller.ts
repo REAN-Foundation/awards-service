@@ -1,7 +1,6 @@
 import express from 'express';
 import { ResponseHandler } from '../../../common/handlers/response.handler';
 import { IncomingEventValidator } from './incoming.event.validator';
-import { BaseController } from '../../base.controller';
 import { IncomingEventService } from '../../../database/services/engine/incoming.event.service';
 import { ErrorHandler } from '../../../common/handlers/error.handler';
 import { IncomingEventCreateModel, IncomingEventSearchFilters } from '../../../domain.types/engine/incoming.event.types';
@@ -10,7 +9,7 @@ import EventHandler from '../../../modules/engine.execution/event.handler';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-export class IncomingEventController extends BaseController {
+export class IncomingEventController {
 
     //#region member variables and constructors
 
@@ -18,15 +17,11 @@ export class IncomingEventController extends BaseController {
 
     _validator: IncomingEventValidator = new IncomingEventValidator();
 
-    constructor() {
-        super();
-    }
 
     //#endregion
 
     create = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('IncomingEvent.Create', request, response, false);
             var model: IncomingEventCreateModel = await this._validator.validateCreateRequest(request);
             const record = await this._service.create(model);
             if (record === null) {
@@ -42,7 +37,6 @@ export class IncomingEventController extends BaseController {
 
     getById = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('IncomingEvent.GetById', request, response);
             var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             const message = 'Incoming event retrieved successfully!';
@@ -54,7 +48,6 @@ export class IncomingEventController extends BaseController {
 
     search = async (request: express.Request, response: express.Response) => {
         try {
-            await this.authorize('IncomingEvent.Search', request, response);
             var filters: IncomingEventSearchFilters = await this._validator.validateSearchRequest(request);
             const searchResults = await this._service.search(filters);
             const message = 'Incoming event records retrieved successfully!';

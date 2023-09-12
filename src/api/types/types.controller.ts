@@ -1,7 +1,6 @@
 import express from 'express';
 import { ResponseHandler } from '../../common/handlers/response.handler';
 import { ErrorHandler } from '../../common/handlers/error.handler';
-import { BaseController } from '../base.controller';
 import { RoleService } from '../../database/services/user/role.service';
 import { 
     CompositionOperatorList, 
@@ -19,7 +18,7 @@ import { IncomingEventTypeService } from '../../database/services/engine/incomin
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-export class TypesController extends BaseController {
+export class TypesController {
 
     //#region member variables and constructors
 
@@ -28,7 +27,6 @@ export class TypesController extends BaseController {
     _eventTypeService: IncomingEventTypeService = null;
 
     constructor() {
-        super();
         this._roleService = new RoleService();
         this._eventTypeService = new IncomingEventTypeService();
     }
@@ -39,7 +37,6 @@ export class TypesController extends BaseController {
 
     getRoleTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetRoleTypes', request, response, false);
             const types = await this._roleService.getAll();
             if (types === null || types.length === 0) {
                 ErrorHandler.throwInternalServerError(`Unable to retrieve user role types!`);
@@ -54,7 +51,6 @@ export class TypesController extends BaseController {
 
     getEventTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetEventTypes', request, response, false);
             const types = await this._eventTypeService.getAll();
             ResponseHandler.success(request, response, 'User role types retrieved successfully!', 200, {
                 Types : types,
@@ -66,7 +62,6 @@ export class TypesController extends BaseController {
 
     getEventActionTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetEventActionTypes', request, response, false);
             ResponseHandler.success(request, response, 'Event action types retrieved successfully!', 200, {
                 Types : EventActionTypeList,
             });
@@ -77,7 +72,6 @@ export class TypesController extends BaseController {
 
     getContextTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetContextTypes', request, response, false);
             ResponseHandler.success(request, response, 'Context types retrieved successfully!', 200, {
                 Types : ContextTypeList,
             });
@@ -88,7 +82,6 @@ export class TypesController extends BaseController {
 
     getConditionOperatorTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetConditionOperatorTypes', request, response, false);
             ResponseHandler.success(request, response, 'Condition operator types retrieved successfully!', 200, {
                 Types : OperatorList,
             });
@@ -99,7 +92,6 @@ export class TypesController extends BaseController {
 
     getLogicalOperatorTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetLogicalOperatorTypes', request, response, false);
             ResponseHandler.success(request, response, 'Logical operator types retrieved successfully!', 200, {
                 Types : LogicalOperatorList,
             });
@@ -110,7 +102,6 @@ export class TypesController extends BaseController {
 
     getCompositeOperatorTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetCompositeOperatorTypes', request, response, false);
             ResponseHandler.success(request, response, 'Composite operator types retrieved successfully!', 200, {
                 Types : CompositionOperatorList,
             });
@@ -121,7 +112,6 @@ export class TypesController extends BaseController {
 
     getMathematicalOperatorTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetMathematicalOperatorTypes', request, response, false);
             ResponseHandler.success(request, response, 'Mathematical operator types retrieved successfully!', 200, {
                 Types : MathematicalOperatorList,
             });
@@ -132,7 +122,6 @@ export class TypesController extends BaseController {
 
     getOperandDataTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetOperandDataTypes', request, response, false);
             ResponseHandler.success(request, response, 'Operand data types retrieved successfully!', 200, {
                 Types : ConditionOperandDataTypeList,
             });
@@ -143,7 +132,6 @@ export class TypesController extends BaseController {
 
     getExecutionStatusTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetExecutionStatusTypes', request, response, false);
             ResponseHandler.success(request, response, 'Execution status types retrieved successfully!', 200, {
                 Types : ExecutionStatusList,
             });
@@ -155,7 +143,6 @@ export class TypesController extends BaseController {
     
     getDataActionTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetDataActionTypes', request, response, false);
             ResponseHandler.success(request, response, 'Data action types retrieved successfully!', 200, {
                 Types : DataActionTypeList,
             });
@@ -167,7 +154,6 @@ export class TypesController extends BaseController {
     
     getInputSourceTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetInputSourceTypes', request, response, false);
             ResponseHandler.success(request, response, 'Input source types retrieved successfully!', 200, {
                 Types : InputSourceTypeList,
             });
@@ -179,7 +165,6 @@ export class TypesController extends BaseController {
     
     getOutputSourceTypes = async (request: express.Request, response: express.Response): Promise<void> => {
         try {
-            await this.authorize('Types.GetOutputSourceTypes', request, response, false);
             ResponseHandler.success(request, response, 'Output source types retrieved successfully!', 200, {
                 Types : OutputSourceTypeList,
             });
