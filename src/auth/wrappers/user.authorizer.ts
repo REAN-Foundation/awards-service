@@ -1,9 +1,9 @@
 import express from 'express';
 import 'reflect-metadata';
 import { inject, injectable } from "tsyringe";
-import { ErrorHandler } from '../common/handlers/error.handler';
-import { CurrentUser } from '../domain.types/miscellaneous/current.user';
-import { IUserAuthorizer } from './interfaces/user.authorizer.interface';
+import { ErrorHandler } from '../../common/handlers/error.handler';
+import { CurrentUser } from '../../domain.types/miscellaneous/current.user';
+import { IUserAuthorizer } from '../interfaces/user.authorizer.interface';
 
 ////////////////////////////////////////////////////////////////////////
 

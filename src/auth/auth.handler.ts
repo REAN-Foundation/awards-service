@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserAuthorizer } from './user.authorizer';
-import { UserAuthenticator } from './user.authenticator';
+import { UserAuthorizer } from './wrappers/user.authorizer';
+import { UserAuthenticator } from './wrappers/user.authenticator';
 import { Loader } from '../startup/loader'
-import { ClientAuthenticator } from './client.authenticator';
+import { ClientAuthenticator } from './wrappers/client.authenticator';
 import { ErrorHandler } from '../common/handlers/error.handler';
 
 ////////////////////////////////////////////////////////////////////////
