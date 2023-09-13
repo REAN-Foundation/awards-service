@@ -37,7 +37,7 @@ export class IncomingEventController {
 
     getById = async (request: express.Request, response: express.Response) => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             const message = 'Incoming event retrieved successfully!';
             return ResponseHandler.success(request, response, message, 200, record);

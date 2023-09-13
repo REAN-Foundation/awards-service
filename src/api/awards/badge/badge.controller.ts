@@ -37,7 +37,7 @@ export class BadgeController {
 
     getById = async (request: express.Request, response: express.Response) => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             const message = 'Badge retrieved successfully!';
             return ResponseHandler.success(request, response, message, 200, record);
@@ -58,7 +58,7 @@ export class BadgeController {
 
     update = async (request: express.Request, response: express.Response) => {
         try {
-            const id = await this._validator.validateParamAsUUID(request, 'id');
+            const id = await this._validator.requestParamAsUUID(request, 'id');
             var model: BadgeUpdateModel = await this._validator.validateUpdateRequest(request);
             const updatedRecord = await this._service.update(id, model);
             const message = 'Badge updated successfully!';
@@ -81,7 +81,7 @@ export class BadgeController {
 
     delete = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const result = await this._service.delete(id);
             const message = 'Badge deleted successfully!';
             ResponseHandler.success(request, response, message, 200, result);

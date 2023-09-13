@@ -44,7 +44,7 @@ export class ParticipantController {
 
     getById = async (request: express.Request, response: express.Response) => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             const message = 'Participant retrieved successfully!';
             return ResponseHandler.success(request, response, message, 200, record);
@@ -55,7 +55,7 @@ export class ParticipantController {
 
     getByReferenceId = async (request: express.Request, response: express.Response) => {
         try {
-            var referenceId: uuid = await this._validator.validateParamAsUUID(request, 'referenceId');
+            var referenceId: uuid = await this._validator.requestParamAsUUID(request, 'referenceId');
             const record = await this._service.getByReferenceId(referenceId);
             const message = 'Participant retrieved successfully!';
             return ResponseHandler.success(request, response, message, 200, record);
@@ -66,7 +66,7 @@ export class ParticipantController {
 
     getByClientId = async (request: express.Request, response: express.Response) => {
         try {
-            var clientId: uuid = await this._validator.validateParamAsUUID(request, 'clientId');
+            var clientId: uuid = await this._validator.requestParamAsUUID(request, 'clientId');
             const records = await this._service.getByClientId(clientId);
             const message = 'Participant retrieved successfully!';
             return ResponseHandler.success(request, response, message, 200, records);
@@ -77,7 +77,7 @@ export class ParticipantController {
 
     update = async (request: express.Request, response: express.Response) => {
         try {
-            const id = await this._validator.validateParamAsUUID(request, 'id');
+            const id = await this._validator.requestParamAsUUID(request, 'id');
             var model: ParticipantUpdateModel = await this._validator.validateUpdateRequest(request);
             const updatedRecord = await this._service.update(id, model);
             const message = 'Participant updated successfully!';
@@ -100,7 +100,7 @@ export class ParticipantController {
 
     delete = async (request: express.Request, response: express.Response) => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const result = await this._service.delete(id);
             const message = 'Participant deleted successfully!';
             ResponseHandler.success(request, response, message, 200, result);
@@ -111,7 +111,7 @@ export class ParticipantController {
 
     getBadges = async (request: express.Request, response: express.Response) => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const participantBadges = await this._service.getBadges(id);
             const message = 'Participant badges retrieved successfully!';
 

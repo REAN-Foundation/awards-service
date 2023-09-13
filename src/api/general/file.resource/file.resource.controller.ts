@@ -77,7 +77,7 @@ export class FileResourceController {
 
     download = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             if (!record.Public) {
 
@@ -113,7 +113,7 @@ export class FileResourceController {
 
     getById = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             if (record === null) {
                 ErrorHandler.throwNotFoundError('File resource with id ' + id.toString() + ' cannot be found!');
@@ -127,7 +127,7 @@ export class FileResourceController {
 
     delete = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             var success = await this._storageService.delete(request.params.id);
             if (!success) {
                 ErrorHandler.throwInternalServerError('File resource with id ' + id.toString() + ' cannot be deleted!');

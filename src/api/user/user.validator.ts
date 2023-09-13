@@ -47,7 +47,12 @@ export class UserValidator extends BaseValidator {
                 gender   : joi.string().max(64).optional(),
             });
             await schema.validateAsync(request.query);
-            return this.getSearchFilters(request.query);
+            const filters = this.getSearchFilters(request.query);
+            const baseFilters = await this.validateBaseSearchFilters(request);
+            return {
+                ...baseFilters,
+                ...filters
+            };
         } catch (error) {
             ErrorHandler.handleValidationError(error);
         }
@@ -103,7 +108,7 @@ export class UserValidator extends BaseValidator {
                 Password    : joi.string().max(512).optional(),
             });
             await schema.validateAsync(request.body);
-            const id = await this.validateParamAsUUID(request, 'id');
+            const id = await this.requestParamAsUUID(request, 'id');
             return await this.getValidUserUpdateModel(id, request);
         } catch (error) {
             ErrorHandler.handleValidationError(error);

@@ -51,7 +51,7 @@ export class UserController {
 
     getById = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
-            const id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            const id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const record: UserResponseDto = await this._service.getById(id);
             if (record === null) {
                 ErrorHandler.throwNotFoundError('User with id ' + id.toString() + ' cannot be found!');
@@ -76,7 +76,7 @@ export class UserController {
 
     update = async (request: express.Request, response: express.Response): Promise <void> => {
         try {
-            const id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            const id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const updateModel: UserUpdateModel = await this._validator.validateUpdateRequest(request);
             const updated: UserResponseDto = await this._service.update(id, updateModel);
             if (updated == null) {
@@ -91,7 +91,7 @@ export class UserController {
 
     delete = async (request: express.Request, response: express.Response) => {
         try {
-            const id = await this._validator.validateParamAsUUID(request, 'id');
+            const id = await this._validator.requestParamAsUUID(request, 'id');
             const record: UserResponseDto = await this._service.getById(id);
             if (record == null) {
                 ErrorHandler.throwNotFoundError('User with id ' + id.toString() + ' cannot be found!');

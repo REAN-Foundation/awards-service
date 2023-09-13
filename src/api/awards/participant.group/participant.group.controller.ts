@@ -35,7 +35,7 @@ export class ParticipantGroupController {
 
     getById = async (request: express.Request, response: express.Response) => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             const message = 'Participant group retrieved successfully!';
             return ResponseHandler.success(request, response, message, 200, record);
@@ -46,7 +46,7 @@ export class ParticipantGroupController {
 
     update = async (request: express.Request, response: express.Response) => {
         try {
-            const id = await this._validator.validateParamAsUUID(request, 'id');
+            const id = await this._validator.requestParamAsUUID(request, 'id');
             var model: ParticipantGroupUpdateModel = await this._validator.validateUpdateRequest(request);
             const updatedRecord = await this._service.update(id, model);
             const message = 'Participant group updated successfully!';
@@ -69,7 +69,7 @@ export class ParticipantGroupController {
 
     delete = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const result = await this._service.delete(id);
             const message = 'Participant group deleted successfully!';
             ResponseHandler.success(request, response, message, 200, result);
@@ -80,8 +80,8 @@ export class ParticipantGroupController {
 
     addParticipant = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
-            var participantId: uuid = await this._validator.validateParamAsUUID(request, 'participantId');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
+            var participantId: uuid = await this._validator.requestParamAsUUID(request, 'participantId');
             const result = await this._service.addParticipant(id, participantId);
             const message = 'Participant added to group successfully!';
             ResponseHandler.success(request, response, message, 200, result);
@@ -92,8 +92,8 @@ export class ParticipantGroupController {
 
     removeParticipant = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
-            var participantId: uuid = await this._validator.validateParamAsUUID(request, 'participantId');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
+            var participantId: uuid = await this._validator.requestParamAsUUID(request, 'participantId');
             const result = await this._service.removeParticipant(id, participantId);
             const message = 'Participant removed from group successfully!';
             ResponseHandler.success(request, response, message, 200, result);
@@ -104,7 +104,7 @@ export class ParticipantGroupController {
 
     getParticipants = async (request: express.Request, response: express.Response): Promise < void > => {
         try {
-            var id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            var id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const result = await this._service.getParticipants(id);
             const message = 'Participants retrieved successfully!';
             ResponseHandler.success(request, response, message, 200, result);

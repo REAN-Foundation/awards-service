@@ -53,7 +53,7 @@ export class ClientController {
 
     getById = async (request: express.Request, response: express.Response) => {
         try {
-            const id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            const id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             if (record === null) {
                 ErrorHandler.throwNotFoundError('Api client with id ' + id.toString() + ' cannot be found!');
@@ -92,7 +92,7 @@ export class ClientController {
 
     update = async (request: express.Request, response: express.Response) => {
         try {
-            const id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            const id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const updateModel: ClientUpdateModel = await this._validator.validateUpdateRequest(request);
             const record = await this._service.getById(id);
             if (record === null) {
@@ -111,7 +111,7 @@ export class ClientController {
 
     delete = async (request: express.Request, response: express.Response) => {
         try {
-            const id: uuid = await this._validator.validateParamAsUUID(request, 'id');
+            const id: uuid = await this._validator.requestParamAsUUID(request, 'id');
             const record = await this._service.getById(id);
             if (record == null) {
                 ErrorHandler.throwNotFoundError('Api client with id ' + id.toString() + ' cannot be found!');
