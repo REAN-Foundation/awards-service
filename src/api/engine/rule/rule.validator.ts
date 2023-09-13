@@ -18,7 +18,7 @@ import {
     RangeComparisonInputParamsObj_Create, 
     RangeComparisonInputParamsObj_Update, 
     ValueComparisonInputParamsObj_Create, 
-    ValueComparisonInputParamsObj_Update } from '../../../api/common.validations';
+    ValueComparisonInputParamsObj_Update } from '../common.validations';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 

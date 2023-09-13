@@ -1,10 +1,10 @@
 import express from 'express';
 import { ResponseHandler } from '../../../common/handlers/response.handler';
+import { ErrorHandler } from '../../../common/handlers/error.handler';
+import { uuid } from '../../../domain.types/miscellaneous/system.types';
 import { ParticipantValidator } from './participant.validator';
 import { ParticipantService } from '../../../database/services/awards/participant.service';
-import { ErrorHandler } from '../../../common/handlers/error.handler';
 import { ParticipantBadgeResponseDto, ParticipantCreateModel, ParticipantSearchFilters, ParticipantUpdateModel } from '../../../domain.types/awards/participant.domain.types';
-import { uuid } from '../../../domain.types/miscellaneous/system.types';
 import { BadgeService } from '../../../database/services/awards/badge.service';
 import { BadgeResponseDto } from '../../../domain.types/awards/badge.domain.types';
 

@@ -15,6 +15,7 @@ import { AuthHandler } from '../../../auth/auth.handler';
 import path from 'path';
 import { Helper } from '../../../common/helper';
 import { DownloadDisposition } from '../../../domain.types/general/file.resource/file.resource.types';
+import { FileResourceValidator } from './file.resource.validator';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +26,7 @@ export class FileResourceController {
 
     _storageService: StorageService = Loader.Container.resolve(StorageService);
 
-    _validator: BaseValidator = new BaseValidator();
+    _validator: FileResourceValidator = new FileResourceValidator();
 
     constructor() {
         this._service = new FileResourceService();

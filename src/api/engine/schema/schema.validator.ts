@@ -11,7 +11,7 @@ import {
     DataExtractionInputParamsObj_Create, 
     DataStorageInputParamsObj_Create, 
     RangeComparisonInputParamsObj_Create, 
-    ValueComparisonInputParamsObj_Create } from '../../../api/common.validations';
+    ValueComparisonInputParamsObj_Create } from '../common.validations';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 

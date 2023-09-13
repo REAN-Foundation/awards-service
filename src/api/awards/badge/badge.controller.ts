@@ -19,7 +19,6 @@ export class BadgeController {
 
     _validator: BadgeValidator = new BadgeValidator();
 
-
     //#endregion
 
     create = async (request: express.Request, response: express.Response) => {
@@ -95,9 +94,7 @@ export class BadgeController {
         try {
             const images = await this._badgeStockservice.getAll();
             const message = 'Badge stock images retrieved successfully!';
-
             ResponseHandler.success(request, response, message, 200, images);
-
         } catch (error) {
             ResponseHandler.handleError(request, response, error);
         }

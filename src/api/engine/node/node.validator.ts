@@ -23,7 +23,7 @@ import {
     RangeComparisonInputParamsObj_Update,
     ValueComparisonInputParamsObj_Create,
     ValueComparisonInputParamsObj_Update
-} from '../../common.validations';
+} from '../common.validations';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
