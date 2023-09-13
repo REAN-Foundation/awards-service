@@ -1,8 +1,6 @@
 ### Local Setup
 
-#### One time setup
-
-##### Install essential packages
+##### Install essential packages (Only first time!)
 `# npm install 
 typescript 
 ts-node 
@@ -26,13 +24,13 @@ needle
 axios 
 `
 
-##### Install database related packages according to your preference
+##### Install database related packages according to your preference (Only first time!)
 `# npm install typeorm 
 mysql2 
 pg 
 pg-hstore`
 
-##### Install logging packages according to your preference
+##### Install logging packages according to your preference (Only first time!)
 `# npm install 
 pino 
 pino-http 
@@ -44,7 +42,7 @@ winston
 winston-daily-rotate-file 
 triple-beam`
 
-##### Install open-telemetry specific packages
+##### Install open-telemetry specific packages (Only first time!)
 `# npm install @opentelemetry/sdk-node 
 @opentelemetry/instrumentation-http 
 @opentelemetry/instrumentation-express 
@@ -57,3 +55,12 @@ triple-beam`
 @opentelemetry/sdk-metrics 
 @opentelemetry/sdk-trace-node`
 
+### Execute application from command line
+
+#### Without open-telemetry
+`# npm run build`
+`# npm run start`
+
+#### With open-telemetry
+`# npm run build`
+`# npm run start:otel`

@@ -9,7 +9,8 @@
         "lint": "eslint ./src/**",
         "lint:fix": "eslint ./src/** --fix",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "nodemon --watch './**/*.ts' --exec 'ts-node' ./src/index.ts"
+        "dev": "nodemon --watch './**/*.ts' --exec 'ts-node' ./src/index.ts",
+        "start:otel": "node --require ./dist/src/startup/telemetry.js ./dist/src/index.js"
     },
     "repository": {
         "type": "git",

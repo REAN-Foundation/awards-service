@@ -1,16 +1,20 @@
-const process = require('process');
+import dotenv from 'dotenv';
+dotenv.config();
+
+// const process = require('process');
 import { NodeSDK, NodeSDKConfiguration } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-node';
 import { Resource } from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 //import { PeriodicExportingMetricReader, ConsoleMetricExporter, MetricReader } from '@opentelemetry/sdk-metrics';
-//import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
+import { ExpressInstrumentation, ExpressLayerType } from '@opentelemetry/instrumentation-express';
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 //import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 //import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
 //import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto';
 
-import { logger } from '../logger/logger';
+// import { logger } from '../logger/logger';
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -20,8 +24,10 @@ export class Telemetry {
 
     private _sdk:NodeSDK  = null;
 
+    private _enabled:boolean = process.env.ENABLE_TELEMETRY === 'true' ? true : false;
+
     private constructor() {
-        logger.info('Initializing the telemetry...');
+        console.info('Initializing the telemetry...');
     }
 
     public static instance(): Telemetry {
@@ -31,8 +37,8 @@ export class Telemetry {
     public start = async (): Promise<boolean> => {
         return new Promise((resolve, reject) => {
             try {
-                if (!this.enabled()) {
-                    logger.info('Telemetry is disabled. Skipping initialization...');
+                if (!this._enabled) {
+                    console.info('Telemetry is disabled. Skipping initialization...');
                     resolve(true);
                     return;
                 }
@@ -41,7 +47,7 @@ export class Telemetry {
                 this._sdk.start();
                 resolve(true);
             } catch (error) {
-                logger.error('Error initializing the scheduler.: ' + error.message);
+                console.error('Error initializing the scheduler.: ' + error.message);
                 reject(false);
             }
         });
@@ -50,23 +56,18 @@ export class Telemetry {
     public shutdown = async (): Promise<boolean> => {
         return new Promise((resolve, reject) => {
             try {
-                if (!this.enabled()) {
-                    logger.info('Telemetry is disabled. Skipping shutdown...');
+                if (!this._enabled) {
+                    console.info('Telemetry is disabled. Skipping shutdown...');
                     resolve(true);
                     return;
                 }
                 this._sdk.shutdown();
                 resolve(true);
             } catch (error) {
-                logger.error('Error stopping the scheduler.: ' + error.message);
+                console.error('Error stopping the scheduler.: ' + error.message);
                 reject(false);
             }
         });
-    };
-
-    private enabled = (): boolean => {
-        const enabled = process.env.ENABLE_TELEMETRY ?? 'true';
-        return enabled === 'true';
     };
 
     private getTelemetryOptions = (): Partial<NodeSDKConfiguration> => {
@@ -91,26 +92,48 @@ export class Telemetry {
         //     exporter: new ConsoleMetricExporter(),
         // });
         
+        // const instrumentations = [
+        //     // getNodeAutoInstrumentations(),
+        //     getNodeAutoInstrumentations({
+        //         "@opentelemetry/instrumentation-http": {
+        //             //Ignore health-check, docs, swagger, openapi.json requests
+        //             ignoreIncomingRequestHook: (req) => {
+        //                 return req.url.includes('/health-check') ||
+        //                     req.url.includes('/docs') ||
+        //                     req.url.includes('/swagger') ||
+        //                     req.url.includes('/openapi.json');
+        //             },
+                    
+        //         },
+        //         "@opentelemetry/instrumentation-express": {
+        //             ignoreLayersType: [
+        //                 ExpressLayerType.MIDDLEWARE,
+        //                 ExpressLayerType.ROUTER,
+        //             ],
+        //         },
+        //     })
+        // ];
         const instrumentations = [
-            getNodeAutoInstrumentations({
-                "@opentelemetry/instrumentation-http": {
-                    //Ignore health-check, docs, swagger, openapi.json requests
-                    ignoreOutgoingRequestHook: (req) => {
-                        return req.hostname.includes('/health-check') ||
-                            req.hostname.includes('/docs') ||
-                            req.hostname.includes('/swagger') ||
-                            req.hostname.includes('/openapi.json');
-                    }
-                },
-            })
+            new HttpInstrumentation({
+                            //Ignore health-check, docs, swagger, openapi.json requests
+                            ignoreIncomingRequestHook: (req) => {
+                                return req.url.includes('/health-check') ||
+                                    req.url.includes('/docs') ||
+                                    req.url.includes('/swagger') ||
+                                    req.url.includes('/openapi.json');
+                            },
+                            
+                        }), // Express instrumentation expects HTTP layer to be instrumented
+            new ExpressInstrumentation({
+                    ignoreLayersType: [
+                        ExpressLayerType.MIDDLEWARE,
+                        ExpressLayerType.ROUTER,
+                    ],
+                }),
         ];
-        //const instrumentations = [
-            //new HttpInstrumentation(), // Express instrumentation expects HTTP layer to be instrumented
-            //new ExpressInstrumentation(),
-        //];
 
         const options: Partial<NodeSDKConfiguration>  = {
-            serviceName: serviceName,
+            // serviceName: serviceName,
             resource: resource,
             traceExporter: traceExporter,
             //metricReader: metricReader,
@@ -142,3 +165,5 @@ export class Telemetry {
     // };
 
 }
+
+Telemetry.instance().start();

@@ -37,6 +37,9 @@ export class Router {
                         message : `Careplan Service API [Version ${process.env.API_VERSION}]`,
                     });
                 });
+                this._app.get('/health-check', (req, res) => {
+                    res.send('ok');
+                });
 
                 registerUserRoutes(this._app);
                 registerClientRoutes(this._app);

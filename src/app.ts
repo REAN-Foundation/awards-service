@@ -3,6 +3,7 @@ import express from 'express';
 import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 import cors from 'cors';
+import { Telemetry } from "./startup/telemetry";
 import { Router } from './startup/router';
 import { logger } from './logger/logger';
 import { ConfigurationManager } from "./config/configuration.manager";
@@ -14,7 +15,6 @@ import { DBConnector } from "./database/database.connector";
 import { FactsDBConnector } from "./modules/fact.extractors/facts.db.connector";
 import { HttpLogger } from "./logger/HttpLogger";
 import FactsDbClient from "./modules/fact.extractors/facts.db.client";
-import { Telemetry } from "./startup/telemetry";
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,7 @@ export default class Application {
 
     warmUp = async () => {
         try {
-            await Telemetry.instance().start(); //First to start
+            //await Telemetry.instance().start(); //First to start
             await this.setupDatabaseConnection();
             await Loader.init();
             await this.setupMiddlewares();
@@ -148,9 +148,11 @@ const TERMINATION_SIGNALS = [
 ];
 
 TERMINATION_SIGNALS.forEach((terminationEvent) => {
-    process.on(terminationEvent, () => {
+    process.on(terminationEvent, (data) => {
         Telemetry.instance().shutdown();
         logger.info(`Received ${terminationEvent} signal`);
+        logger.error(JSON.stringify(data, null, 2));
         process.exit(0);
     });
 });
+

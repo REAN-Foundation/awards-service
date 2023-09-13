@@ -4,6 +4,7 @@ import { UserAuthenticator } from './wrappers/user.authenticator';
 import { Loader } from '../startup/loader'
 import { ClientAuthenticator } from './wrappers/client.authenticator';
 import { ErrorHandler } from '../common/handlers/error.handler';
+import { ResponseHandler } from '../common/handlers/response.handler';
 
 ////////////////////////////////////////////////////////////////////////
 export type AuthMiddleware = (request: Request, response: Response, next: NextFunction) => Promise<void>;
@@ -24,7 +25,8 @@ export class AuthHandler {
             request.context = context;
             const tokens = context.split('.');
             if (tokens.length < 2) {
-                ErrorHandler.throwInternalServerError('Invalid request context');
+                ResponseHandler.failure(request, response, 'Invalid request context', 400);
+                return;
             }
             const resourceType = tokens[0];
             request.context = context;
