@@ -62,5 +62,11 @@ A blood pressure management schema containing both rule and execution nodes.
 Following schematic depicts the relation between a rule and children conditions.
 
   <img src="./docs/rules-and-conditions.png" width="400">
-  
+
+#### To run the service locally with telemetry enabled
+```
+# npm run build
+# npm run start:otel
+```
+
 __We encourage forking and welcome contributions to this code base.__
