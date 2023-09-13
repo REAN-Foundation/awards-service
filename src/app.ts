@@ -1,8 +1,8 @@
-//import cors from 'cors';
 import "reflect-metadata";
 import express from 'express';
 import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
+import cors from 'cors';
 import { Router } from './startup/router';
 import { logger } from './logger/logger';
 import { ConfigurationManager } from "./config/configuration.manager";
@@ -14,6 +14,7 @@ import { DBConnector } from "./database/database.connector";
 import { FactsDBConnector } from "./modules/fact.extractors/facts.db.connector";
 import { HttpLogger } from "./logger/HttpLogger";
 import FactsDbClient from "./modules/fact.extractors/facts.db.client";
+import { Telemetry } from "./startup/telemetry";
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,7 @@ export default class Application {
 
     warmUp = async () => {
         try {
+            await Telemetry.instance().start(); //First to start
             await this.setupDatabaseConnection();
             await Loader.init();
             await this.setupMiddlewares();
@@ -87,7 +89,9 @@ export default class Application {
                 this._app.use(express.urlencoded({ extended: true }));
                 this._app.use(express.json());
                 this._app.use(helmet());
-                //this._app.use(cors());
+                this._app.use(cors({
+                    origin: '*', //Allow all origins, change this to restrict access to specific origins
+                }));
                 if (ConfigurationManager.UseHTTPLogging) {
                     HttpLogger.use(this._app);
                 }
@@ -130,19 +134,22 @@ export default class Application {
 
 }
 
-// process.on('exit', () => {
-//     logger.info("process.exit() is called.");
-// });
+/////////////////////////////////////////////////////////////////////////
 
-[
+//Shutting down the service gracefully
+
+const TERMINATION_SIGNALS = [
     `exit`,
     `SIGINT`,
     `SIGUSR1`,
     `SIGUSR2`,
     `uncaughtException`,
     `SIGTERM`
-].forEach((terminationEvent) => {
+];
+
+TERMINATION_SIGNALS.forEach((terminationEvent) => {
     process.on(terminationEvent, () => {
+        Telemetry.instance().shutdown();
         logger.info(`Received ${terminationEvent} signal`);
         process.exit(0);
     });

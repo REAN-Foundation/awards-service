@@ -19,9 +19,9 @@ export class BunyanDebugLogger extends AbstrctBunyanLogger {
                     level  : 'info',
                     //stream : process.stdout,
                     stream : this._consolePrettyStream,
-                    format : '[@time $level] $msg'
                 }
-            ]
+            ],
+            
         });
     }
 
