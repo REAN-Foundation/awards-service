@@ -3,7 +3,7 @@ import express from 'express';
 import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 import cors from 'cors';
-import { Telemetry } from "./startup/telemetry";
+import { Telemetry } from "./telemetry/telemetry";
 import { Router } from './startup/router';
 import { logger } from './logger/logger';
 import { ConfigurationManager } from "./config/configuration.manager";
@@ -45,7 +45,6 @@ export default class Application {
 
     warmUp = async () => {
         try {
-            //await Telemetry.instance().start(); //First to start
             await this.setupDatabaseConnection();
             await Loader.init();
             await this.setupMiddlewares();
@@ -156,3 +155,4 @@ TERMINATION_SIGNALS.forEach((terminationEvent) => {
     });
 });
 
+/////////////////////////////////////////////////////////////////////////

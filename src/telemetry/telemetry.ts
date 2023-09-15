@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
-dotenv.config();
+// import dotenv from 'dotenv';
+// dotenv.config();
 
 // const process = require('process');
 import { NodeSDK, NodeSDKConfiguration } from '@opentelemetry/sdk-node';

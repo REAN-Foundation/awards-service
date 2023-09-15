@@ -56,11 +56,6 @@ triple-beam`
 @opentelemetry/sdk-trace-node`
 
 ### Execute application from command line
-
-#### Without open-telemetry
 `# npm run build`
 `# npm run start`
 
-#### With open-telemetry
-`# npm run build`
-`# npm run start:otel`

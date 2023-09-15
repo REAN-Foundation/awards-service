@@ -3,6 +3,7 @@ import { ResponseDto } from '../../domain.types/miscellaneous/response.dto';
 import { ActivityRecordingHandler } from './activity.recording.handler';
 import { InputValidationError, ApiError } from './error.handler';
 import { logger } from '../../logger/logger';
+import { ConfigurationManager } from '../../config/configuration.manager';
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -97,7 +98,9 @@ export class ResponseHandler {
             if (!logDataObject) {
                 responseObject.Data = null;
             }
-            logger.info(JSON.stringify(responseObject, null, 2));
+            if (!ConfigurationManager.UseHTTPLogging) {
+                logger.info(JSON.stringify(responseObject, null, 2));
+            }
         }
 
         ActivityRecordingHandler.record(responseObject);
