@@ -15,6 +15,9 @@ import { uuid } from '../../../domain.types/miscellaneous/system.types';
 import { Client } from '../../../database/models/client/client.model';
 import { UserMapper } from '../../../database/mappers/user/user.mapper';
 import { Role } from '../../../database/models/user/role.model';
+import { Trace, endSpan, getServiceName, recordSpanException, startSpan } from '../../../telemetry/intrumenter';
+import e from 'express';
+import { trace } from '@opentelemetry/api';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +91,8 @@ export class UserService {
         }
     };
 
-    getById = async (id): Promise<UserResponseDto> => {
+    async getById(id: uuid): Promise<UserResponseDto> {
+        const span = startSpan('DbAccess:UserService:getById');
         try {
             var record = await this._userRepository.findOne({
                 where : {
@@ -102,9 +106,31 @@ export class UserService {
             });
             return UserMapper.toResponseDto(record);
         } catch (error) {
+            recordSpanException(span, error);
             ErrorHandler.throwDbAccessError('DB Error: Unable to retrieve user!', error);
+        } finally {
+            endSpan(span);
         }
     };
+
+    // @Trace('DbAccess:UserService:getById')
+    // async getById(id): Promise<UserResponseDto> {
+    //     try {
+    //         var record = await this._userRepository.findOne({
+    //             where : {
+    //                 id : id
+    //             },
+    //             relations : {
+    //                 Client : true,
+    //                 Roles  : true
+    //             },
+    //             select : this._selectAll
+    //         });
+    //         return UserMapper.toResponseDto(record);
+    //     } catch (error) {
+    //         ErrorHandler.throwDbAccessError('DB Error: Unable to retrieve user!', error);
+    //     }
+    // };
 
     getUserHashedPassword = async (id: uuid): Promise<string> => {
         try {
@@ -392,7 +418,9 @@ export class UserService {
         return updateModel;
     };
 
-    createUserLoginSession = async (userId) => {
+    createUserLoginSession = async (userId: uuid) => {
+        const tracer = trace.getTracer(getServiceName());
+        return tracer.startActiveSpan('DbAccess:UserService:createUserLoginSession', async (span) => {
         try {
             var now = new Date();
             var till = TimeUtils.addDuration(now, 3, DurationType.Day);
@@ -411,10 +439,13 @@ export class UserService {
                 ValidTill : till
             });
             var record = await this._userLoginSessionRepository.save(session);
+            span.end();
             return record;
         } catch (error) {
+            span.recordException(error);
             ErrorHandler.throwDbAccessError('Unable to create user login session!', error);
         }
+    });
     };
 
     invalidateUserLoginSession = async (sessionId) => {
@@ -485,3 +516,4 @@ export class UserService {
     };
 
 }
+

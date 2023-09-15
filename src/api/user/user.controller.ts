@@ -16,6 +16,7 @@ import { CurrentUser } from '../../domain.types/miscellaneous/current.user';
 import { RoleService } from '../../database/services/user/role.service';
 import { StringUtils } from '../../common/utilities/string.utils';
 import { AuthHandler } from '../../auth/auth.handler';
+import { startSpan, endSpan, recordSpanException } from '../../telemetry/intrumenter';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -108,6 +109,7 @@ export class UserController {
     };
 
     loginWithPassword = async (request: express.Request, response: express.Response): Promise <void> => {
+        const span = startSpan('UserController:loginWithPassword');
         try {
             await this._validator.validateLoginWithPasswordRequest(request);
             const loginModel = await this.getLoginModel(request.body);
@@ -129,7 +131,9 @@ export class UserController {
             ResponseHandler.success(request, response, message, 200, result);
         } catch (error) {
             ResponseHandler.handleError(request, response, error);
+            recordSpanException(span, error);
         }
+        endSpan(span);
     };
 
     changePassword = async (request: express.Request, response: express.Response): Promise <void> => {

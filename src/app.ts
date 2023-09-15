@@ -3,7 +3,6 @@ import express from 'express';
 import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 import cors from 'cors';
-import { Telemetry } from "./telemetry/telemetry";
 import { Router } from './startup/router';
 import { logger } from './logger/logger';
 import { ConfigurationManager } from "./config/configuration.manager";
@@ -132,27 +131,3 @@ export default class Application {
     };
 
 }
-
-/////////////////////////////////////////////////////////////////////////
-
-//Shutting down the service gracefully
-
-const TERMINATION_SIGNALS = [
-    `exit`,
-    `SIGINT`,
-    `SIGUSR1`,
-    `SIGUSR2`,
-    `uncaughtException`,
-    `SIGTERM`
-];
-
-TERMINATION_SIGNALS.forEach((terminationEvent) => {
-    process.on(terminationEvent, (data) => {
-        Telemetry.instance().shutdown();
-        logger.info(`Received ${terminationEvent} signal`);
-        logger.error(JSON.stringify(data, null, 2));
-        process.exit(0);
-    });
-});
-
-/////////////////////////////////////////////////////////////////////////
