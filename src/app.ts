@@ -1,17 +1,13 @@
 import "reflect-metadata";
 import express from 'express';
-import fileUpload from 'express-fileupload';
-import helmet from 'helmet';
-import cors from 'cors';
 import { RouteHandler } from './startup/route.handler';
 import { logger } from './logger/logger';
-import { ConfigurationManager } from "./config/configuration.manager";
 import { Scheduler } from './startup/scheduler';
 import { Seeder } from './startup/seeder';
 import { DatabaseConnector } from "./database/database.connector";
 import { FactsDatabaseConnector } from "./modules/fact.extractors/facts.db.connector";
-import { HttpLogger } from "./logger/HttpLogger";
 import { Injector } from "./startup/injector";
+import { MiddlewareHandler } from "./startup/middleware.handler";
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +29,7 @@ export default class Application {
 
     //#endregion
     
-    public app(): express.Application {
+    public expressApp(): express.Application {
         return this._expressApp;
     }
 
@@ -52,46 +48,14 @@ export default class Application {
             await Injector.registerInjections();
             await DatabaseConnector.setup();
             await FactsDatabaseConnector.setup();
-            await this.setupMiddlewares();
-            await RouteHandler.setup(this.app());
+            await MiddlewareHandler.setup(this.expressApp());
+            await RouteHandler.setup(this.expressApp());
             await Seeder.seed();
             await Scheduler.instance().schedule();
         }
         catch (error) {
             logger.error('An error occurred while warming up.' + error.message);
         }
-    };
-
-    private setupMiddlewares = async (): Promise<boolean> => {
-
-        return new Promise((resolve, reject) => {
-            try {
-                this._expressApp.use(express.urlencoded({ extended: true }));
-                this._expressApp.use(express.json());
-                this._expressApp.use(helmet());
-                this._expressApp.use(cors({
-                    origin: '*', //Allow all origins, change this to restrict access to specific origins
-                }));
-                if (ConfigurationManager.UseHTTPLogging) {
-                    HttpLogger.use(this._expressApp);
-                }
-
-                const MAX_UPLOAD_FILE_SIZE = ConfigurationManager.MaxUploadFileSize;
-
-                this._expressApp.use(fileUpload({
-                    limits            : { fileSize: MAX_UPLOAD_FILE_SIZE },
-                    preserveExtension : true,
-                    createParentPath  : true,
-                    parseNested       : true,
-                    useTempFiles      : true,
-                    tempFileDir       : '/tmp/uploads/'
-                }));
-                resolve(true);
-            }
-            catch (error) {
-                reject(error);
-            }
-        });
     };
 
     private listen = () => {
