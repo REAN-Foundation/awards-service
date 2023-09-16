@@ -13,7 +13,7 @@ import { FactsDatabaseConnector } from "./modules/fact.extractors/facts.db.conne
 import { HttpLogger } from "./logger/HttpLogger";
 import { Injector } from "./startup/injector";
 
-/////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
 
 export default class Application {
 
@@ -21,14 +21,10 @@ export default class Application {
 
     public _expressApp: express.Application = null;
 
-    private _routeHandler: RouteHandler = null;
-
     private static _instance: Application = null;
-
 
     private constructor() {
         this._expressApp = express();
-        this._routeHandler = new RouteHandler(this._expressApp);
     }
 
     public static instance(): Application {
@@ -57,7 +53,7 @@ export default class Application {
             await DatabaseConnector.setup();
             await FactsDatabaseConnector.setup();
             await this.setupMiddlewares();
-            await this.setupRoutes();
+            await RouteHandler.setup(this.app());
             await Seeder.seed();
             await Scheduler.instance().schedule();
         }
@@ -96,10 +92,6 @@ export default class Application {
                 reject(error);
             }
         });
-    };
-
-    private setupRoutes = async (): Promise<boolean> => {
-        return await this._routeHandler.init();
     };
 
     private listen = () => {
