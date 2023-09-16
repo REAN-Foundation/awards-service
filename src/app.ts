@@ -3,7 +3,7 @@ import express from 'express';
 import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 import cors from 'cors';
-import { Router } from './startup/router';
+import { RouteHandler } from './startup/route.handler';
 import { logger } from './logger/logger';
 import { ConfigurationManager } from "./config/configuration.manager";
 import { Scheduler } from './startup/scheduler';
@@ -17,27 +17,28 @@ import { Injector } from "./startup/injector";
 
 export default class Application {
 
-    //#region Member variables
+    //#region Construction
 
-    public _app: express.Application = null;
+    public _expressApp: express.Application = null;
 
-    private _router: Router = null;
+    private _routeHandler: RouteHandler = null;
 
     private static _instance: Application = null;
 
-    //#endregion
 
     private constructor() {
-        this._app = express();
-        this._router = new Router(this._app);
+        this._expressApp = express();
+        this._routeHandler = new RouteHandler(this._expressApp);
     }
 
     public static instance(): Application {
         return this._instance || (this._instance = new this());
     }
 
+    //#endregion
+    
     public app(): express.Application {
-        return this._app;
+        return this._expressApp;
     }
 
     public start = async(): Promise<void> => {
@@ -69,19 +70,19 @@ export default class Application {
 
         return new Promise((resolve, reject) => {
             try {
-                this._app.use(express.urlencoded({ extended: true }));
-                this._app.use(express.json());
-                this._app.use(helmet());
-                this._app.use(cors({
+                this._expressApp.use(express.urlencoded({ extended: true }));
+                this._expressApp.use(express.json());
+                this._expressApp.use(helmet());
+                this._expressApp.use(cors({
                     origin: '*', //Allow all origins, change this to restrict access to specific origins
                 }));
                 if (ConfigurationManager.UseHTTPLogging) {
-                    HttpLogger.use(this._app);
+                    HttpLogger.use(this._expressApp);
                 }
 
                 const MAX_UPLOAD_FILE_SIZE = ConfigurationManager.MaxUploadFileSize;
 
-                this._app.use(fileUpload({
+                this._expressApp.use(fileUpload({
                     limits            : { fileSize: MAX_UPLOAD_FILE_SIZE },
                     preserveExtension : true,
                     createParentPath  : true,
@@ -98,20 +99,20 @@ export default class Application {
     };
 
     private setupRoutes = async (): Promise<boolean> => {
-        return await this._router.init();
+        return await this._routeHandler.init();
     };
 
     private listen = () => {
         return new Promise((resolve, reject) => {
             try {
                 const port = process.env.PORT;
-                const server = this._app.listen(port, () => {
+                const server = this._expressApp.listen(port, () => {
                     const serviceName = `${process.env.SERVICE_NAME}-[${process.env.NODE_ENV}]`;
                     logger.info(serviceName + ' is up and listening on port ' + process.env.PORT.toString());
-                    this._app.emit("server_started");
+                    this._expressApp.emit("server_started");
                 });
                 module.exports.server = server;
-                resolve(this._app);
+                resolve(this._expressApp);
             }
             catch (error) {
                 reject(error);

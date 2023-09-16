@@ -19,12 +19,12 @@ import { register as registerFileResourceRoutes } from '../api/general/file.reso
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-export class Router {
+export class RouteHandler {
 
-    private _app = null;
+    private _expressApp = null;
 
-    constructor(app: express.Application) {
-        this._app = app;
+    constructor(expressApp: express.Application) {
+        this._expressApp = expressApp;
     }
 
     public init = async (): Promise<boolean> => {
@@ -32,30 +32,30 @@ export class Router {
             try {
 
                 //Handling the base route
-                this._app.get('/api/v1/', (req, res) => {
-                    res.send({
+                this._expressApp.get('/api/v1/', (_request, response) => {
+                    response.send({
                         message : `Careplan Service API [Version ${process.env.API_VERSION}]`,
                     });
                 });
-                this._app.get('/health-check', (req, res) => {
-                    res.send('ok');
+                this._expressApp.get('/health-check', (_request, response) => {
+                    response.send('ok');
                 });
 
-                registerUserRoutes(this._app);
-                registerClientRoutes(this._app);
-                registerBadgeRoutes(this._app);
-                registerBadgeCategoryRoutes(this._app);
-                registerParticipantRoutes(this._app);
-                registerParticipantGroupRoutes(this._app);
-                registerSchemaRoutes(this._app);
-                registerNodeRoutes(this._app);
-                registerRuleRoutes(this._app);
-                registerConditionRoutes(this._app);
-                registerIncomingEventTypeRoutes(this._app);
-                registerIncomingEventRoutes(this._app);
-                registerSchemaInstanceRoutes(this._app);
-                registerTypesRoutes(this._app);
-                registerFileResourceRoutes(this._app);
+                registerUserRoutes(this._expressApp);
+                registerClientRoutes(this._expressApp);
+                registerBadgeRoutes(this._expressApp);
+                registerBadgeCategoryRoutes(this._expressApp);
+                registerParticipantRoutes(this._expressApp);
+                registerParticipantGroupRoutes(this._expressApp);
+                registerSchemaRoutes(this._expressApp);
+                registerNodeRoutes(this._expressApp);
+                registerRuleRoutes(this._expressApp);
+                registerConditionRoutes(this._expressApp);
+                registerIncomingEventTypeRoutes(this._expressApp);
+                registerIncomingEventRoutes(this._expressApp);
+                registerSchemaInstanceRoutes(this._expressApp);
+                registerTypesRoutes(this._expressApp);
+                registerFileResourceRoutes(this._expressApp);
 
                 resolve(true);
 
