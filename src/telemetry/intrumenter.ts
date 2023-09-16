@@ -6,7 +6,8 @@ import { ExpressInstrumentation, ExpressLayerType } from '@opentelemetry/instrum
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
-import { Span, SpanKind, context, trace } from '@opentelemetry/api';
+import { Context, Span, SpanKind, TextMapGetter, TextMapSetter, context, trace } from '@opentelemetry/api';
+import { TextMapPropagator, propagation  } from '@opentelemetry/api';
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -259,3 +260,47 @@ export const recordSpanException = (span: Span, error: Error): void => {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+// Inject outgoing request headers with the current span context
+export const injectHeaders = (headers: any, attributes: any): any => {
+    if (!TELEMETRY_ENABLED) {
+        return headers;
+    }
+    const span = trace.getActiveSpan();
+    const currentSpan = trace.getSpan(context.active());
+
+    if (!currentSpan) {
+        return headers;
+    }
+    if (attributes) {
+        for (const key in attributes) {
+            currentSpan.setAttribute(key, attributes[key]);
+        }
+    }
+    //Set the span context in the current context
+    const spanContext = trace.setSpan(context.active(), currentSpan);
+
+    const carrier = {};
+    propagation.inject(context.active(), carrier);
+    headers['traceparent'] = carrier['traceparent'];
+    headers['tracestate'] = carrier['tracestate'];
+
+    console.log(`traceparent: ${headers['traceparent']}`);
+    const traceId = currentSpan.spanContext().traceId;
+    console.log(`traceid: ${traceId}`);
+
+    if (headers['traceparent'] !== traceId) {
+        console.log(`traceid: ${traceId}`);
+        console.log(`traceparent: ${headers['traceparent']}`);
+    }
+    return headers;
+};
+
+// Extract the span context from the incoming request headers
+export const extractContextFromHeaders = (headers: any): Context => {
+    if (!TELEMETRY_ENABLED) {
+        return null;
+    }
+    const ctx = propagation.extract(context.active(), headers);
+    return ctx;
+};
