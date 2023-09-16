@@ -6,14 +6,12 @@ import cors from 'cors';
 import { Router } from './startup/router';
 import { logger } from './logger/logger';
 import { ConfigurationManager } from "./config/configuration.manager";
-import { Loader } from './startup/loader';
 import { Scheduler } from './startup/scheduler';
-import { DbClient } from './database/db.clients/db.client';
 import { Seeder } from './startup/seeder';
-import { DBConnector } from "./database/database.connector";
-import { FactsDBConnector } from "./modules/fact.extractors/facts.db.connector";
+import { DatabaseConnector } from "./database/database.connector";
+import { FactsDatabaseConnector } from "./modules/fact.extractors/facts.db.connector";
 import { HttpLogger } from "./logger/HttpLogger";
-import FactsDbClient from "./modules/fact.extractors/facts.db.client";
+import { Injector } from "./startup/injector";
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -42,34 +40,6 @@ export default class Application {
         return this._app;
     }
 
-    warmUp = async () => {
-        try {
-            await this.setupDatabaseConnection();
-            await Loader.init();
-            await this.setupMiddlewares();
-            await this._router.init();
-            const seeder = new Seeder();
-            await seeder.seed();
-            await Scheduler.instance().schedule();
-        }
-        catch (error) {
-            logger.error('An error occurred while warming up.' + error.message);
-        }
-    };
-
-    setupDatabaseConnection = async () => {
-        if (process.env.NODE_ENV === 'test') {
-            //Note: This is only for test environment
-            //Drop all tables in db
-            await DbClient.dropDatabase();
-        }
-        await DbClient.createDatabase();
-        await DBConnector.initialize();
-
-        await FactsDbClient.createDatabase();
-        await FactsDBConnector.initialize();
-    };
-
     public start = async(): Promise<void> => {
         try {
             await this.warmUp();
@@ -77,6 +47,21 @@ export default class Application {
         }
         catch (error){
             logger.error('An error occurred while starting reancare-api service.' + error.message);
+        }
+    };
+
+    warmUp = async () => {
+        try {
+            await Injector.registerInjections();
+            await DatabaseConnector.setup();
+            await FactsDatabaseConnector.setup();
+            await this.setupMiddlewares();
+            await this.setupRoutes();
+            await Seeder.seed();
+            await Scheduler.instance().schedule();
+        }
+        catch (error) {
+            logger.error('An error occurred while warming up.' + error.message);
         }
     };
 
@@ -110,6 +95,10 @@ export default class Application {
                 reject(error);
             }
         });
+    };
+
+    private setupRoutes = async (): Promise<boolean> => {
+        return await this._router.init();
     };
 
     private listen = () => {

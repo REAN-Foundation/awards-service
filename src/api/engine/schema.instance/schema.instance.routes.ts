@@ -2,9 +2,6 @@ import express from 'express';
 import {
     SchemaInstanceController
 } from './schema.instance.controller';
-import {
-    Loader
-} from '../../../startup/loader';
 import { AuthHandler as Auth } from '../../../auth/auth.handler';
 
 ///////////////////////////////////////////////////////////////////////////////////

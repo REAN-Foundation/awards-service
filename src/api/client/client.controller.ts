@@ -1,17 +1,17 @@
 import express from 'express';
-import { generate } from 'generate-password';
 import { ResponseHandler } from '../../common/handlers/response.handler';
-import { ClientService } from '../../database/services/client/client.service';
 import { ErrorHandler } from '../../common/handlers/error.handler';
 import { TypeUtils } from '../../common/utilities/type.utils';
-import { ClientValidator } from './client.validator';
 import { uuid } from '../../domain.types/miscellaneous/system.types';
+import { ClientValidator } from './client.validator';
 import {
     ClientCreateModel,
     ClientUpdateModel,
     ClientSearchFilters,
     ClientSearchResults
 } from '../../domain.types/client/client.domain.types';
+import { ClientService } from '../../database/services/client/client.service';
+import { generate } from 'generate-password';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,6 @@ export class ClientController {
     _service: ClientService = new ClientService();
 
     _validator: ClientValidator = new ClientValidator();
-
 
     //#endregion
 

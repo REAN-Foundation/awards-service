@@ -22,7 +22,7 @@ import { FileResourceUploadDomainModel } from '../../../domain.types/general/fil
 import { ConfigurationManager } from '../../../config/configuration.manager';
 import { TimeUtils } from '../../../common/utilities/time.utils';
 import { StorageService } from '../../../modules/storage/storage.service';
-import { Loader } from '../../../startup/loader';
+import { Injector } from '../../../startup/injector';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,17 +30,13 @@ export class FileResourceService {
 
     //#region Models
 
-    _storageService: StorageService = null;
+    _storageService: StorageService = Injector.Container.resolve(StorageService);
 
     _fileResourceRepository : Repository<FileResource> = Source.getRepository(FileResource);
 
     _fileResourceVersionRepository : Repository<FileResourceVersion> = Source.getRepository(FileResourceVersion);
 
     _userRepository : Repository<User> = Source.getRepository(User);
-
-    constructor() {
-        this._storageService = Loader.Container.resolve(StorageService);
-    }
 
     //#endregion
 

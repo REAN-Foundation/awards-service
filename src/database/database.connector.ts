@@ -34,6 +34,7 @@ import { SchemaEventType } from "./models/engine/schema.event.type.model";
 import { DBLogger } from "./database.logger";
 import { FileResourceVersion } from "./models/general/file.resource.version.model";
 import { BadgeStockImage } from "./models/awards/badge.stock.image.model";
+import { DbClient } from "./db.clients/db.client";
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -45,26 +46,19 @@ logger.info(`db host     : ${Config.host}`);
 ///////////////////////////////////////////////////////////////////////////////////
 
 class DatabaseConnector {
-
     static _basePath = path.join(process.cwd(), 'src/database/models').replace(/\\/g, '/');
 
-    // static _folders = this.getFoldersRecursively(this._basePath)
-    //     .map(y => y.replace(/\\/g, '/'))
-    //     .map(x => '"' + x + '/*.js"');
-
-    //static _entities = this;
-
     static _source = new DataSource({
-        name        : Config.dialect,
-        type        : Config.dialect,
-        host        : Config.host,
-        port        : Config.port,
-        username    : Config.username,
-        password    : Config.password,
-        database    : Config.database,
-        synchronize : true,
+        name: Config.dialect,
+        type: Config.dialect,
+        host: Config.host,
+        port: Config.port,
+        username: Config.username,
+        password: Config.password,
+        database: Config.database,
+        synchronize: true,
         //entities    : [this._basePath + '/**/**{.model.ts}'],
-        entities    : [
+        entities: [
             Client,
             AwardPointRedemption,
             Badge,
@@ -94,33 +88,16 @@ class DatabaseConnector {
             FileResourceVersion,
             BadgeStockImage,
         ],
-        migrations  : [],
-        subscribers : [],
+        migrations: [],
+        subscribers: [],
         //logger      : 'advanced-console', //Use console for the typeorm logging
-        logger      : new DBLogger(),
-        logging     : true,
-        poolSize    : Config.pool.max,
-        cache       : true,
+        logger: new DBLogger(),
+        logging: true,
+        poolSize: Config.pool.max,
+        cache: true,
     });
 
-    static getFoldersRecursively(location: string) {
-        const items = fs.readdirSync(location, { withFileTypes: true });
-        let paths = [];
-        for (const item of items) {
-            if (item.isDirectory()) {
-                const fullPath = path.join(location, item.name);
-                const childrenPaths = this.getFoldersRecursively(fullPath);
-                paths = [
-                    ...paths,
-                    fullPath,
-                    ...childrenPaths,
-                ];
-            }
-        }
-        return paths;
-    }
-
-    static initialize = (): Promise<boolean> => {
+    private static initialize = (): Promise<boolean> => {
         return new Promise((resolve, reject) => {
             this._source
                 .initialize()
@@ -128,18 +105,65 @@ class DatabaseConnector {
                     logger.info('Database connection has been established successfully.');
                     resolve(true);
                 })
-                .catch(error => {
+                .catch((error) => {
                     logger.error('Unable to connect to the database:' + error.message);
                     reject(false);
                 });
         });
-
     };
 
+    static setup = async (): Promise<boolean> => {
+        if (process.env.NODE_ENV === 'test') {
+            //Note: This is only for test environment
+            //Drop all tables in db
+            await DbClient.dropDatabase();
+        }
+        await DbClient.createDatabase();
+        await DatabaseConnector.initialize();
+        return true;
+    };
+
+    static close = (): Promise<boolean> => {
+        return new Promise((resolve, reject) => {
+            this._source
+                .destroy()
+                .then(() => {
+                    logger.info('Database connection has been closed successfully.');
+                    resolve(true);
+                })
+                .catch((error) => {
+                    logger.error('Unable to close the database connection:' + error.message);
+                    reject(false);
+                });
+        });
+    };
 }
+
+///////////////////////////////////////////////////////////////////////////////////
+
+    // function getFoldersRecursively(location: string) {
+    //     const items = fs.readdirSync(location, { withFileTypes: true });
+    //     let paths = [];
+    //     for (const item of items) {
+    //         if (item.isDirectory()) {
+    //             const fullPath = path.join(location, item.name);
+    //             const childrenPaths = this.getFoldersRecursively(fullPath);
+    //             paths = [
+    //                 ...paths,
+    //                 fullPath,
+    //                 ...childrenPaths,
+    //             ];
+    //         }
+    //     }
+    //     return paths;
+    // }
+    //Usage
+    // static _folders = this.getFoldersRecursively(this._basePath)
+    //     .map(y => y.replace(/\\/g, '/'))
+    //     .map(x => '"' + x + '/*.js"');
 
 ///////////////////////////////////////////////////////////////////////////////////
 
 const Source = DatabaseConnector._source;
 
-export { DatabaseConnector as DBConnector, Source };
+export { DatabaseConnector, Source };

@@ -4,7 +4,7 @@ import { logger } from '../../logger/logger';
 import { AuthenticationResult } from '../../domain.types/user/auth.domain.types';
 import { CurrentClient } from '../../domain.types/miscellaneous/current.client';
 import { ClientService } from '../../database/services/client/client.service';
-import { Loader } from '../../startup/loader';
+import { Injector } from '../../startup/injector';
 import { IClientAuthenticator } from '../interfaces/client.authenticator.interface';
 
 //////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@ export class CustomClientAuthenticator implements IClientAuthenticator {
     _clientService: ClientService = null;
 
     constructor() {
-        this._clientService = Loader.Container.resolve(ClientService);
+        this._clientService = Injector.Container.resolve(ClientService);
     }
 
     public authenticate = async (request: express.Request): Promise<AuthenticationResult> => {

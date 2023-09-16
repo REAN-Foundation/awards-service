@@ -8,7 +8,6 @@ import BaseValidator from '../../base.validator';
 import * as mime from 'mime-types';
 import { FileResourceCreateModel } from '../../../domain.types/general/file.resource.domain.types';
 import { FileUtils } from '../../../common/utilities/file.utils';
-import { Loader } from '../../../startup/loader';
 import { StorageService } from '../../../modules/storage/storage.service';
 import { FileResourceMetadata } from '../../../domain.types/general/file.resource/file.resource.types';
 import { AuthHandler } from '../../../auth/auth.handler';
@@ -16,6 +15,7 @@ import path from 'path';
 import { Helper } from '../../../common/helper';
 import { DownloadDisposition } from '../../../domain.types/general/file.resource/file.resource.types';
 import { FileResourceValidator } from './file.resource.validator';
+import { Injector } from '../../../startup/injector';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +24,7 @@ export class FileResourceController {
     //#region member variables and constructors
     _service: FileResourceService = null;
 
-    _storageService: StorageService = Loader.Container.resolve(StorageService);
+    _storageService: StorageService = Injector.Container.resolve(StorageService);
 
     _validator: FileResourceValidator = new FileResourceValidator();
 

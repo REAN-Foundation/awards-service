@@ -10,6 +10,7 @@ import { NutritionChoiceFact } from "./models/nutrition.choice.fact.model";
 import { ExercisePhysicalActivityFact } from "./models/exercise.physical.activity.fact.model";
 import { VitalFact } from "./models/vital.fact.model";
 import { MentalHealthFact } from "./models/mental.health.fact.model";
+import FactsDbClient from "./facts.db.client";
 
 ///////////////////////////////////////////////////////////////////////////////////
 const DATABASE_NAME = `awards_facts`;
@@ -44,7 +45,7 @@ class FactsDatabaseConnector {
         cache       : true,
     });
 
-    static initialize = (): Promise<boolean> => {
+    private static initialize = (): Promise<boolean> => {
         return new Promise((resolve, reject) => {
             this._source
                 .initialize()
@@ -59,10 +60,21 @@ class FactsDatabaseConnector {
         });
     };
 
+    static setup = async (): Promise<boolean> => {
+        try {
+            await FactsDbClient.createDatabase();
+            await this.initialize();
+            return true;
+        } catch (error) {
+            logger.error('An error occurred while setting up the database connection.' + error.message);
+            return false;
+        }
+    };
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 
 const FactsSource = FactsDatabaseConnector._source;
 
-export { FactsDatabaseConnector as FactsDBConnector, FactsSource };
+export { FactsDatabaseConnector, FactsSource };

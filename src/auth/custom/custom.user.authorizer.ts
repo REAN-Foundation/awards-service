@@ -4,7 +4,7 @@ import { logger } from '../../logger/logger';
 import { IUserAuthorizer } from '../interfaces/user.authorizer.interface';
 import { CurrentUser } from '../../domain.types/miscellaneous/current.user';
 import { ConfigurationManager } from '../../config/configuration.manager';
-import { Loader } from '../../startup/loader';
+import { Injector } from '../../startup/injector';
 import { UserService } from '../../database/services/user/user.service';
 
 //////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@ export class CustomUserAuthorizer implements IUserAuthorizer {
     _userService: UserService = null;
 
     constructor() {
-        this._userService = Loader.Container.resolve(UserService);
+        this._userService = Injector.Container.resolve(UserService);
     }
 
     public authorize = async (request: express.Request): Promise<boolean> => {

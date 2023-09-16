@@ -11,7 +11,6 @@ import {
     UserUpdateModel
 } from '../../domain.types/user/user.domain.types';
 import { uuid } from '../../domain.types/miscellaneous/system.types';
-import { Loader } from '../../startup/loader';
 import { CurrentUser } from '../../domain.types/miscellaneous/current.user';
 import { RoleService } from '../../database/services/user/role.service';
 import { StringUtils } from '../../common/utilities/string.utils';

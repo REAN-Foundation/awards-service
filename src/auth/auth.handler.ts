@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserAuthorizer } from './wrappers/user.authorizer';
 import { UserAuthenticator } from './wrappers/user.authenticator';
-import { Loader } from '../startup/loader'
 import { ClientAuthenticator } from './wrappers/client.authenticator';
 import { ErrorHandler } from '../common/handlers/error.handler';
 import { ResponseHandler } from '../common/handlers/response.handler';
+import { Injector } from '../startup/injector';
 
 ////////////////////////////////////////////////////////////////////////
 export type AuthMiddleware = (request: Request, response: Response, next: NextFunction) => Promise<void>;
@@ -40,15 +40,15 @@ export class AuthHandler {
 
         //Line-up the auth middleware chian
         if (authenticateClient) {
-            var clientAuthenticator = Loader.Container.resolve(ClientAuthenticator);
+            var clientAuthenticator = Injector.Container.resolve(ClientAuthenticator);
             middlewares.push(clientAuthenticator.authenticate);
         }
         if (authenticateUser) {
-            var userAuthenticator = Loader.Container.resolve(UserAuthenticator);
+            var userAuthenticator = Injector.Container.resolve(UserAuthenticator);
             middlewares.push(userAuthenticator.authenticate);
         }
         if (authorizeUser) {
-            var authorizer = Loader.Container.resolve(UserAuthorizer);
+            var authorizer = Injector.Container.resolve(UserAuthorizer);
             middlewares.push(authorizer.authorize);
         }
 
@@ -57,19 +57,19 @@ export class AuthHandler {
 
     public static verifyAccess = async(request: Request): Promise<boolean> => {
 
-        var clientAuthenticator = Loader.Container.resolve(ClientAuthenticator);
+        var clientAuthenticator = Injector.Container.resolve(ClientAuthenticator);
         const clientVerified = await clientAuthenticator.verify(request);
         if (clientVerified === false){
             ErrorHandler.throwInternalServerError('Unauthorized access', 401);
         }
 
-        var userAuthenticator = Loader.Container.resolve(UserAuthenticator);
+        var userAuthenticator = Injector.Container.resolve(UserAuthenticator);
         const userVerified = await userAuthenticator.verify(request);
         if (userVerified === false){
             ErrorHandler.throwInternalServerError('Unauthorized access', 401);
         }
 
-        var userAuthorizer = Loader.Container.resolve(UserAuthorizer);
+        var userAuthorizer = Injector.Container.resolve(UserAuthorizer);
         const authorized = await userAuthorizer.verify(request);
         if (authorized === false){
             ErrorHandler.throwUnauthorizedUserError('Unauthorized access');
@@ -78,7 +78,7 @@ export class AuthHandler {
     };
 
     public static generateUserSessionToken = async (user: any): Promise<string> => {
-        var authorizer = Loader.Container.resolve(UserAuthorizer);
+        var authorizer = Injector.Container.resolve(UserAuthorizer);
         return await authorizer.generateUserSessionToken(user);
     };
 

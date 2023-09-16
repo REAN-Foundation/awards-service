@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { DependencyContainer } from 'tsyringe';
 import { CustomClientAuthenticator } from './custom/custom.client.authenticator';
 import { CustomUserAuthorizer } from './custom/custom.user.authorizer';
-import { CustomUserAuthenticator } from './custom/custom.authenticator';
+import { CustomUserAuthenticator } from './custom/custom.user.authenticator';
 
 ////////////////////////////////////////////////////////////////////////////////
 

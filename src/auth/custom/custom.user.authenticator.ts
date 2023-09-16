@@ -3,18 +3,12 @@ import jwt from 'jsonwebtoken';
 import { logger } from '../../logger/logger';
 import { AuthenticationResult } from '../../domain.types/user/auth.domain.types';
 import { ClientService } from '../../database/services/client/client.service';
-import { Loader } from '../../startup/loader';
+import { Injector } from '../../startup/injector';
 import { IUserAuthenticator } from '../interfaces/user.authenticator.interface';
 
 /////////////////////////////////////////////////////////////////////////////////
 
 export class CustomUserAuthenticator implements IUserAuthenticator {
-
-    _clientService: ClientService = null;
-
-    constructor() {
-        this._clientService = Loader.Container.resolve(ClientService);
-    }
 
     public authenticate = async (
         request: express.Request

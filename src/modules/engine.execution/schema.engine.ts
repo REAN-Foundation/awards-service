@@ -9,8 +9,8 @@ import { logger } from '../../logger/logger';
 import { SchemaInstanceResponseDto } from '../../domain.types/engine/schema.instance.types';
 import { ExecutionTypesGenerator } from './execution.types.generator';
 import FactCollector from './fact.collector';
-import { Loader } from '../../startup/loader';
 import { ProcessorService } from '../processor/processor.service';
+import { Injector } from '../../startup/injector';
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +49,7 @@ export class SchemaEngine {
         facts: any
     ): Promise<CNodeInstance> {
 
-        const processor = Loader.Container.resolve(ProcessorService);
+        const processor = Injector.Container.resolve(ProcessorService);
 
         const rules = currentNodeInstance.Rules;
         if (rules.length > 0) {
