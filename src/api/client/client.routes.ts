@@ -1,7 +1,5 @@
 import express from 'express';
-import {
-    ClientController
-} from './client.controller';
+import { ClientController } from './client.controller';
 import { AuthHandler as Auth } from '../../auth/auth.handler';
 
 ///////////////////////////////////////////////////////////////////////////////////

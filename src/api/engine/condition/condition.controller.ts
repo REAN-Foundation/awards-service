@@ -1,10 +1,10 @@
 import express from 'express';
 import { ResponseHandler } from '../../../common/handlers/response.handler';
+import { ErrorHandler } from '../../../common/handlers/error.handler';
+import { uuid } from '../../../domain.types/miscellaneous/system.types';
 import { ConditionValidator } from './condition.validator';
 import { ConditionService } from '../../../database/services/engine/condition.service';
-import { ErrorHandler } from '../../../common/handlers/error.handler';
 import { ConditionCreateModel, ConditionSearchFilters, ConditionUpdateModel } from '../../../domain.types/engine/condition.types';
-import { uuid } from '../../../domain.types/miscellaneous/system.types';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,6 @@ export class ConditionController {
     _service: ConditionService = new ConditionService();
 
     _validator: ConditionValidator = new ConditionValidator();
-
 
     //#endregion
 
