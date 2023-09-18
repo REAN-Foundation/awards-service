@@ -19,9 +19,6 @@ import { Role } from "./role.model";
 @Entity({ name: 'users' })
 export class User extends Person {
 
-    @PrimaryGeneratedColumn('uuid')
-    id : string;
-
     @ManyToOne(() => Client, { nullable: true })
     @JoinColumn()
     Client : Client;
@@ -37,14 +34,5 @@ export class User extends Person {
 
     @Column({ type: 'date', nullable: true })
     LastLogin : Date;
-
-    @CreateDateColumn()
-    CreatedAt : Date;
-
-    @UpdateDateColumn()
-    UpdatedAt : Date;
-
-    @DeleteDateColumn()
-    DeletedAt : Date;
 
 }

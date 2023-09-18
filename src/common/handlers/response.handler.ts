@@ -98,7 +98,7 @@ export class ResponseHandler {
             if (!logDataObject) {
                 responseObject.Data = null;
             }
-            if (!ConfigurationManager.UseHTTPLogging) {
+            if (process.env.HTTP_LOGGING != 'true') {
                 logger.info(JSON.stringify(responseObject, null, 2));
             }
         }

@@ -2,7 +2,6 @@ import express from "express";
 import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 import cors from 'cors';
-import { ConfigurationManager } from "../config/configuration.manager";
 import { HttpLogger } from "../logger/HttpLogger";
 import { logger } from "../logger/logger";
 
@@ -19,14 +18,14 @@ export class MiddlewareHandler {
                 expressApp.use(cors({
                     origin: '*', //Allow all origins, change this to restrict access to specific origins
                 }));
-                if (ConfigurationManager.UseHTTPLogging) {
+                if (process.env.HTTP_LOGGING === 'true') {
                     HttpLogger.use(expressApp);
                 }
 
-                const MAX_UPLOAD_FILE_SIZE = ConfigurationManager.MaxUploadFileSize;
-
+                //File upload configuration
+                const maxUploadFileSize = parseInt(process.env.MAX_UPLOAD_FILE_SIZE) || 104857600; //100MB
                 expressApp.use(fileUpload({
-                    limits            : { fileSize: MAX_UPLOAD_FILE_SIZE },
+                    limits            : { fileSize: maxUploadFileSize },
                     preserveExtension : true,
                     createParentPath  : true,
                     parseNested       : true,

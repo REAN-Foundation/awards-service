@@ -20,8 +20,6 @@ export class CustomClientAuthenticator implements IClientAuthenticator {
     public authenticate = async (request: express.Request): Promise<AuthenticationResult> => {
         try {
 
-            request.authorizeRequest = false;
-
             var res: AuthenticationResult = {
                 Result        : true,
                 Message       : 'Authenticated',

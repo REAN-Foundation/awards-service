@@ -14,7 +14,6 @@ export class CustomUserAuthenticator implements IUserAuthenticator {
         request: express.Request
     ): Promise<AuthenticationResult> => {
         try {
-            request.authorizeRequest = true;
 
             var res: AuthenticationResult = {
                 Result        : true,

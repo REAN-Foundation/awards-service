@@ -10,7 +10,6 @@ declare global{
             resourceType: string,
             resourceId: string | number | null | undefined
             resourceOwnerUserId: string,
-            authorizeRequest: boolean
         }
     }
 }

@@ -14,9 +14,6 @@ import { Person } from "../user/person.model";
 @Entity({ name: 'participants' })
 export class Participant extends Person {
 
-    @PrimaryGeneratedColumn('uuid')
-    id : string;
-
     @ManyToOne(() => Client, { nullable: true })
     @JoinColumn()
     Client : Client;
