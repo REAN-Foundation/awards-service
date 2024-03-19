@@ -2,7 +2,7 @@ import express from "express";
 import fileUpload from 'express-fileupload';
 import helmet from 'helmet';
 import cors from 'cors';
-import { HttpLogger } from "../logger/HttpLogger";
+import { HttpLogger } from "../logger/http.logger";
 import { logger } from "../logger/logger";
 
 ////////////////////////////////////////////////////////////////////////////////////
