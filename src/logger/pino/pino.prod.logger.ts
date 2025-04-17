@@ -12,11 +12,11 @@ export class PinoProdLogger extends AbstrctPinoLogger {
             transport : {
                 target : 'pino-pretty',
                 //target : this._logFile
-            },
             options : {
                 translateTime : 'SYS:dd-mm-yyyy HH:MM:ss',
                 ignore        : 'pid',
             }
+        }
         }
         //, pino.destination(this._logFile) // Another way to specify logfile
         );
@@ -26,15 +26,15 @@ export class PinoProdLogger extends AbstrctPinoLogger {
             //     target : 'pino-pretty',
             //     //target : this._logFile
             // },
-            options : {
-                append          : true,
-                colorizeObjects : true,
-                colorize        : true,
-                //translateTime   : false,
-                //timestampKey    : 'time',
-                ignore          : 'pid',
-            }
-        }
+            // options : {
+            //     append          : true,
+            //     colorizeObjects : true,
+            //     colorize        : true,
+            //     //translateTime   : false,
+            //     //timestampKey    : 'time',
+            //     ignore          : 'pid',
+            // }
+    }
         //, pino.destination(this._logFile) // Another way to specify logfile
         );
     }

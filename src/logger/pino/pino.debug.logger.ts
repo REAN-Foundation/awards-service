@@ -16,7 +16,7 @@ export class PinoDebugLogger extends AbstrctPinoLogger {
             transport : {
                 target : 'pino-pretty',
                 //target : this._logFile
-            },
+
             // formatters : {
             //     level : (label) => {
             //         return { level: label };
@@ -30,6 +30,7 @@ export class PinoDebugLogger extends AbstrctPinoLogger {
                 //timestampKey    : 'time',
                 ignore          : 'pid',
             }
+        }
         }
         //, pino.destination(this._logFile) // Another way to specify logfile
         );
