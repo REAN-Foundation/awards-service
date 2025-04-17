@@ -1,12 +1,9 @@
-FROM node:16.14.0-alpine3.15 AS builder
+FROM node:22.14-alpine AS builder
 ADD . /app
 RUN apk add bash
 RUN apk add --no-cache \
         python3 \
         py3-pip \
-    && pip3 install --upgrade pip \
-    && pip3 install \
-        awscli \
     && rm -rf /var/cache/apk/*
 RUN apk add --update alpine-sdk
 WORKDIR /app
@@ -19,15 +16,14 @@ RUN npm run build
 
 # RUN npm run build
 
-FROM node:16.14.0-alpine3.15
+FROM node:22.14-alpine
 RUN apk add bash
 RUN apk add --no-cache \
         python3 \
         py3-pip \
-    && pip3 install --upgrade pip \
-    && pip3 install \
-        awscli \
     && rm -rf /var/cache/apk/*
+
+RUN pip3 install --break-system-packages awscli
 RUN apk add --update alpine-sdk
 RUN apk update
 RUN apk upgrade
@@ -41,3 +37,5 @@ COPY --from=builder ./app/dist/ .
 
 RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/bin/bash", "-c", "/app/entrypoint.sh"]
+
+# CMD ["node", "src/index.js"]
