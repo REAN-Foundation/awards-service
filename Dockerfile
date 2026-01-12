@@ -1,4 +1,4 @@
-FROM node:22.14-alpine AS builder
+FROM node:22.21.1-alpine AS builder
 ADD . /app
 RUN apk add bash
 RUN apk add --no-cache \
@@ -16,7 +16,7 @@ RUN npm run build
 
 # RUN npm run build
 
-FROM node:22.14-alpine
+FROM node:22.21.1-alpine
 RUN apk add bash
 RUN apk add --no-cache \
         python3 \
