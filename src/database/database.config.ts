@@ -6,12 +6,13 @@ import { logger } from "../logger/logger";
 export type databaseDialect = 'mysql' | 'postgres';
 
 export interface DatabaseConfig {
-    username: string;
-    password: string;
-    database: string;
-    host    : string;
-    port    : number;
-    dialect : databaseDialect,
+    username    : string;
+    password    : string;
+    database    : string;
+    host        : string;
+    port        : number;
+    dialect     : databaseDialect,
+    synchronize : boolean,
     pool    : {
         max    : 20,
         min    : 0,
@@ -43,6 +44,7 @@ export const Config : DatabaseConfig = {
     host     : process.env.DB_HOST,
     port     : parseInt(process.env.DB_PORT),
     dialect  : process.env.DB_DIALECT as databaseDialect,
+    synchronize : process.env.DB_SYNCHRONIZE === 'true',
     pool     : {
         max     : 20,
         min     : 0,

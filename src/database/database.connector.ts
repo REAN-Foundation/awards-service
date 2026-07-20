@@ -62,7 +62,7 @@ class DatabaseConnector {
         username    : Config.username,
         password    : Config.password,
         database    : Config.database,
-        synchronize : true,
+        synchronize : Config.synchronize,
         //entities    : [this._basePath + '/**/**{.model.ts}'],
         entities    : [
             Client,
