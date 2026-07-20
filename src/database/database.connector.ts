@@ -41,6 +41,8 @@ logger.info(`environment : ${process.env.NODE_ENV}`);
 logger.info(`db name     : ${Config.database}`);
 logger.info(`db username : ${Config.username}`);
 logger.info(`db host     : ${Config.host}`);
+logger.info(`db dialect  : ${Config.dialect}`);
+logger.info(`db synchronize : ${Config.synchronize}`);
 
 ///////////////////////////////////////////////////////////////////////////////////
 
