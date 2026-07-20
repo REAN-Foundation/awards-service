@@ -25,7 +25,7 @@ class FactsDatabaseConnector {
         username    : Config.username,
         password    : Config.password,
         database    : DATABASE_NAME,
-        synchronize : true,
+        synchronize : Config.synchronize,
         //entities    : [this._basePath + '/**/**{.model.ts}'],
         entities    : [
             MedicationFact,
