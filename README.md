@@ -5,10 +5,10 @@
 
 This project is open-sourced under [MIT license](./LICENSE).
 
-This REST API service provides for awards, points, redemptions, badges....
+This  REST API service provides for awards, points, redemptions, badges....
 
-This service is designed to support generic workflows for awards, badges and multiple gamification scenarios.
-Following is a brief overview of the internals of the service.
+This service is designed to support generic workflows for awards, badges and multiple gamification scenarios. 
+Following is a brief overview of the internals of the service. 
 
 Service contains 3 main areas.
 1. Schema Engine - A generic workflow engine
